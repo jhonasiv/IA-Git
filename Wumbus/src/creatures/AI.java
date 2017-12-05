@@ -6,11 +6,13 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
 import creatures.Creature.Knowledge;
+import creatures.Human.Actions;
 import creatures.Human.Possibility;
 import items.Inventory;
 import items.Inventory.InventoryInfo;
@@ -26,7 +28,7 @@ public class AI
 		this.inventory = inventory;
 		generateMoveBase();
 		update();
-		printMoveBase();
+//		printMoveBase();
 	}
 	
 	private enum Entity {
@@ -106,6 +108,10 @@ public class AI
 		
 		private void interpret()
 		{
+			if(visited)
+			{
+				infoValue = 1;
+			}
 			for (int i = 0; i < info.length(); i++)
 			{
 				if(info.charAt(i) == 'P')
@@ -380,16 +386,15 @@ public class AI
 		public void visit()
 		{
 			visited = true;
-			changeBase();
-		}
-		
-		private void changeBase()
-		{
-			baseValue = -1;
+			baseValue = -1;;
 		}
 		
 		public String printHeuristic()
 		{
+			if(local.equals(human.getPosicao()))
+			{
+				return "H";
+			}
 			return Integer.toString(heuristic);
 		}
 		
@@ -421,11 +426,16 @@ public class AI
 		}
 	}
 	
+	private class ShootChoice
+	{
+		
+	}
+	
 	private Human human;
 	private Board board;
 	private Inventory inventory;
-	private List<Possibility> possibilities;
-	private List<Knowledge> base;
+	private List<Possibility> possibilities = new ArrayList<Possibility>();
+	private List<Knowledge> base = new ArrayList<Knowledge>();
 	private List<ArrayList<MovementChoice>> moveBase = new ArrayList<ArrayList<MovementChoice>>();
 	private List<InventoryInfo> inventoryInfo = new ArrayList<InventoryInfo>();
 	
@@ -455,6 +465,58 @@ public class AI
 		possibilities = human.getPossibilities();
 		inventoryInfo = inventory.check();
 		readBase();
+	}
+	
+	public Possibility chooseAction()
+	{
+		int choiceIndex = 0;
+		List<Integer> heuristics = new ArrayList<Integer>();
+		for(int i = 0; i < possibilities.size(); i++)
+		{
+			switch(possibilities.get(i).action)
+			{
+				case MOVER:
+					if(possibilities.get(i).possible)
+					{
+						heuristics.add(moveBase.get(possibilities.get(i).local.x).get(possibilities.get(i).local.y).heuristic);
+					}
+					else
+					{
+						heuristics.add(-1000);
+					}
+					break;
+				case ATIRAR:
+					if(possibilities.get(i).possible)
+					{
+						heuristics.add(-1000);
+					}
+					else
+					{
+						heuristics.add(-1000);
+					}
+					break;
+				case QUEBRAR:
+					if(possibilities.get(i).possible)
+					{
+						heuristics.add(-1000);
+					}
+					else
+					{
+						heuristics.add(-1000);
+					}
+			}
+		}
+		
+		int biggestValue = -9999;
+		for(int i = 0; i < heuristics.size(); i++)
+		{
+			if(biggestValue < heuristics.get(i))
+			{
+				choiceIndex = i;
+				biggestValue = heuristics.get(i);
+			}
+		}
+		return possibilities.get(choiceIndex);
 	}
 	
 	private void readBase()

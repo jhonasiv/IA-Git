@@ -21,9 +21,9 @@ public class Board
 		public Point entrada;
 		public Point saida;
 		
-		public boolean compare(Point pos)
+		public boolean equals(Point pos)
 		{
-			return(pos == entrada);
+			return(pos.equals(entrada));
 		}
 	}
 	
@@ -457,5 +457,33 @@ public class Board
 	public List<ArrayList<String>> getUnmovablesBoard()
 	{
 		return unmovablesBoard;
+	}
+	
+	public List<Point> getTowers()
+	{
+		return rules.getTorres();
+	}
+
+	public List<Point> getFires()
+	{
+		return rules.getFogos();
+	}
+	
+	public List<Point> getShortcuts()
+	{
+		return rules.getAtalhos();
+	}
+	
+	public Point getExit(Point entrada)
+	{
+		Point saida = new Point();
+		for(int i = 0; i < connections.size(); i++)
+		{
+			if(connections.get(i).equals(entrada))
+			{
+				saida = connections.get(i).saida;
+			}
+		}
+		return saida;
 	}
 }

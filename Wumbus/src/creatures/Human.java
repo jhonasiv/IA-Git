@@ -12,28 +12,29 @@ import board.Board;
 public class Human extends Creature
 {
 	
-	private enum Actions {
+	public enum Actions {
 		MOVER, ATIRAR, QUEBRAR
 	}
 	
 	private enum States {
 		CURIOUS, DESPERATE, LAST_BREATH;
 		
-//		public States next(int num)
-//		{
-//			if(ordinal() + num >= values().length)
-//			{
-//				return values()[values().length-1];
-//			}
-//			return values()[ordinal() + num];
-//		}
+		// public States next(int num)
+		// {
+		// if(ordinal() + num >= values().length)
+		// {
+		// return values()[values().length-1];
+		// }
+		// return values()[ordinal() + num];
+		// }
 	}
 	
-	protected class Possibility
+	public class Possibility
 	{
 		
 		public Actions action;
 		public Direction direction;
+		public Point local;
 		public boolean possible = false;
 		public float heuristic = 0;
 	}
@@ -47,21 +48,75 @@ public class Human extends Creature
 		inventory.add(Item.BOW, 1);
 		inventory.add(Item.ARROW, 1);
 		inventory.add(Item.PICKAXE, 1);
-//		inventory.add(Item.MAP, 1);
+		// inventory.add(Item.MAP, 1);
 		inventory.check();
-//		inventory.print();
+		// inventory.print();
 		percepcao();
-		AI ai = new AI(this, board, inventory);
+		ai = new AI(this, board, inventory);
 	}
 	
+	private AI ai;
 	private States state;
 	private Inventory inventory;
 	private int numMoves = 0;
 	private List<Possibility> possibleActions = new ArrayList<Possibility>();
 	
-	public void move()
+	public void act()
 	{
-		checkPossibilities();
+		Possibility action = new Possibility();
+		int movesThisTurn = 0;
+		while ((movesThisTurn < (int) speed))
+		{
+			interactWithBoard();
+			checkPossibilities();
+			ai.update();
+			action = ai.chooseAction();
+			switch (action.action)
+			{
+				case MOVER:
+					move(action.local);
+					break;
+				case ATIRAR:
+					if(inventory.check().get(2).possession)
+					{
+						shoot(action.direction, Item.FIRE_ARROW);
+					}
+					else
+					{
+						shoot(action.direction, Item.ARROW);
+					}
+				case QUEBRAR:
+					mine(action.local);
+					break;
+			}
+			percepcao();
+			movesThisTurn++;
+			printBase();
+			ai.printMoveBase();
+		}
+	}
+	
+	private void move(Point location)
+	{
+		posicao = location;
+		System.out.println(posicao);
+	}
+	
+	private void shoot(Direction dir, Item item)
+	{
+		inventory.shoot(item, dir);
+	}
+	
+	private void mine(Point local)
+	{
+		inventory.mine(local);
+		for (int i = 0; i < base.size(); i++)
+		{
+			if(base.get(i).sameLocation(local))
+			{
+				base.get(i).info = dungeon.getLocal(local);
+			}
+		}
 	}
 	
 	private void checkPossibilities()
@@ -70,15 +125,20 @@ public class Human extends Creature
 		Possibility possib = new Possibility();
 		Point local = new Point();
 		
-		///MOVER PARA BAIXO
+		/// MOVER PARA BAIXO
 		local = new Point(posicao.x - 1, posicao.y);
 		possib.action = Actions.MOVER;
 		possib.direction = Direction.BAIXO;
+		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
 			if(dungeon.getLocal(local) != "R")
 			{
 				possib.possible = true;
+			}
+			else
+			{
+				possib.possible = false;
 			}
 		}
 		else
@@ -87,16 +147,21 @@ public class Human extends Creature
 		}
 		possibleActions.add(possib);
 		
-		///MOVER PARA CIMA
+		/// MOVER PARA CIMA
 		possib = new Possibility();
 		possib.action = Actions.MOVER;
 		possib.direction = Direction.CIMA;
 		local = new Point(posicao.x + 1, posicao.y);
+		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
 			if(dungeon.getLocal(local) != "R")
 			{
 				possib.possible = true;
+			}
+			else
+			{
+				possib.possible = false;
 			}
 		}
 		else
@@ -105,16 +170,21 @@ public class Human extends Creature
 		}
 		possibleActions.add(possib);
 		
-		///MOVER PARA ESQUERDA
+		/// MOVER PARA ESQUERDA
 		possib = new Possibility();
 		possib.action = Actions.MOVER;
 		possib.direction = Direction.ESQUERDA;
 		local = new Point(posicao.x, posicao.y - 1);
+		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
 			if(dungeon.getLocal(local) != "R")
 			{
 				possib.possible = true;
+			}
+			else
+			{
+				possib.possible = false;
 			}
 		}
 		else
@@ -123,80 +193,76 @@ public class Human extends Creature
 		}
 		possibleActions.add(possib);
 		
-		///MOVER PARA DIREITA
+		/// MOVER PARA DIREITA
 		possib = new Possibility();
 		possib.action = Actions.MOVER;
 		possib.direction = Direction.DIREITA;
 		local = new Point(posicao.x, posicao.y + 1);
+		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
 			if(dungeon.getLocal(local) != "R")
 			{
 				possib.possible = true;
 			}
+			else
+			{
+				possib.possible = false;
+			}
 		}
 		else
 		{
 			possib.possible = false;
 		}
 		possibleActions.add(possib);
-				
-		///ATIRAR PARA BAIXO
+		
+		/// ATIRAR PARA BAIXO
 		possib = new Possibility();
 		possib.action = Actions.ATIRAR;
 		possib.direction = Direction.BAIXO;
 		possib.possible = true;
-		possibleActions.add(possib);		
+		possib.local = local;
+		possibleActions.add(possib);
 		
-		///ATIRAR PARA CIMA
+		/// ATIRAR PARA CIMA
 		possib = new Possibility();
 		possib.action = Actions.ATIRAR;
 		possib.direction = Direction.CIMA;
 		possib.possible = true;
+		possib.local = local;
 		possibleActions.add(possib);
 		
-		///ATIRAR PARA ESQUERDA
+		/// ATIRAR PARA ESQUERDA
 		possib = new Possibility();
 		possib.action = Actions.ATIRAR;
 		possib.direction = Direction.ESQUERDA;
 		possib.possible = true;
+		possib.local = local;
 		possibleActions.add(possib);
 		
-		///ATIRAR PARA DIREITA
+		/// ATIRAR PARA DIREITA
 		possib = new Possibility();
 		possib.action = Actions.ATIRAR;
 		possib.direction = Direction.DIREITA;
 		possib.possible = true;
+		possib.local = local;
 		possibleActions.add(possib);
 		
-		///QUEBRAR ROCHA ABAIXO
+		/// QUEBRAR ROCHA ABAIXO
 		possib = new Possibility();
 		possib.action = Actions.QUEBRAR;
 		possib.direction = Direction.BAIXO;
 		local = new Point(posicao.x - 1, posicao.y);
+		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
 			if(dungeon.getLocal(local) == "R")
 			{
 				possib.possible = true;
 			}
-		}
-		else
-		{
-			possib.possible = false;
-		}
-		possibleActions.add(possib);
-				
-		///QUEBRAR ROCHAR ACIMA
-		possib = new Possibility();
-		possib.action = Actions.QUEBRAR;
-		possib.direction = Direction.CIMA;
-		local = new Point(posicao.x + 1, posicao.y);
-		if(dungeon.validPoint(local))
-		{
-			if(dungeon.getLocal(local) == "R")
+			else
 			{
-				possib.possible = true;
+				possib.possible = false;
 			}
 		}
 		else
@@ -205,16 +271,21 @@ public class Human extends Creature
 		}
 		possibleActions.add(possib);
 		
-		///QUEBRAR ROCHA À ESQUERDA
+		/// QUEBRAR ROCHAR ACIMA
 		possib = new Possibility();
 		possib.action = Actions.QUEBRAR;
-		possib.direction = Direction.ESQUERDA;
-		local = new Point(posicao.x, posicao.y - 1);
+		possib.direction = Direction.CIMA;
+		local = new Point(posicao.x + 1, posicao.y);
+		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
 			if(dungeon.getLocal(local) == "R")
 			{
 				possib.possible = true;
+			}
+			else
+			{
+				possib.possible = false;
 			}
 		}
 		else
@@ -222,17 +293,45 @@ public class Human extends Creature
 			possib.possible = false;
 		}
 		possibleActions.add(possib);
-				
-		///QUEBRAR ROCHA À DIREITA
+		
+		/// QUEBRAR ROCHA À ESQUERDA
 		possib = new Possibility();
 		possib.action = Actions.QUEBRAR;
-		possib.direction = Direction.DIREITA;
-		local = new Point(posicao.x, posicao.y+1);
+		possib.direction = Direction.ESQUERDA;
+		local = new Point(posicao.x, posicao.y - 1);
+		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
 			if(dungeon.getLocal(local) == "R")
 			{
 				possib.possible = true;
+			}
+			else
+			{
+				possib.possible = false;
+			}
+		}
+		else
+		{
+			possib.possible = false;
+		}
+		possibleActions.add(possib);
+		
+		/// QUEBRAR ROCHA À DIREITA
+		possib = new Possibility();
+		possib.action = Actions.QUEBRAR;
+		possib.direction = Direction.DIREITA;
+		local = new Point(posicao.x, posicao.y + 1);
+		possib.local = local;
+		if(dungeon.validPoint(local))
+		{
+			if(dungeon.getLocal(local) == "R")
+			{
+				possib.possible = true;
+			}
+			else
+			{
+				possib.possible = false;
 			}
 		}
 		else
@@ -265,63 +364,172 @@ public class Human extends Creature
 		}
 	}
 	
+	private void interactWithBoard()
+	{
+		takeGold();
+		takeTorch();
+		openChest();
+		goUpTower();
+	}
+	
+	private void enterShortcut()
+	{
+		for(int n = 0; n < dungeon.getLocal(posicao).length(); n++)
+		{
+			if(dungeon.getLocal(posicao).charAt(n) == 'A')
+			{
+				move(dungeon.getExit(posicao));
+			}
+		}
+	}
+	
+	private void takeGold()
+	{
+		for (int n = 0; n < dungeon.getLocal(posicao).length(); n++)
+		{
+			if(dungeon.getLocal(posicao).charAt(n) == 'O')
+			{
+				dungeon.modifyBoard(posicao, "O", "");
+				for (int i = 0; i < base.size(); i++)
+				{
+					if(base.get(i).sameLocation(posicao))
+					{
+						base.get(i).info = dungeon.getLocal(posicao);
+					}
+				}
+			}
+		}
+	}
+	
+	private void takeTorch()
+	{
+		for(int n = 0; n < dungeon.getFires().size(); n++)
+		{
+			if((Math.abs(posicao.x - dungeon.getFires().get(n).x) <= 2 && Math.abs(posicao.y - dungeon.getFires().get(n).y) == 0)
+					|| (Math.abs(posicao.x - dungeon.getFires().get(n).x) == 0 && Math.abs(posicao.y - dungeon.getFires().get(n).y) <= 2))
+			{
+				gatherInfo(dungeon.getFires().get(n), 0);
+			}
+		}
+		
+		for (int n = 0; n < dungeon.getLocal(posicao).length(); n++)
+		{
+			if(dungeon.getLocal(posicao).charAt(n) == 'F')
+			{
+				dungeon.modifyBoard(posicao, "F", "");
+				inventory.add(Item.TORCH, 1);
+			}
+		}
+	}
+	
+	private void goUpTower()
+	{
+		for(int n = 0; n < dungeon.getTowers().size(); n++)
+		{
+			if(Math.sqrt(Math.pow(posicao.x - dungeon.getTowers().get(n).x, 2) + Math.pow(posicao.y - dungeon.getTowers().get(n).y, 2)) <= 3)
+			{
+				gatherInfo(dungeon.getTowers().get(n), 0);
+			}
+		}
+		
+		for (int i = 0; i < dungeon.getLocal(posicao).length(); i++)
+		{
+			if(dungeon.getLocal(posicao).charAt(i) == 'T')
+			{
+				Point local = new Point();
+				for (int quadrante = 1; quadrante <= 3; quadrante++)
+				{
+					local = new Point(posicao.x - quadrante, posicao.y);
+					gatherInfo(local, quadrante);
+					
+					local = new Point(posicao.x + quadrante, posicao.y);
+					gatherInfo(local, quadrante);
+					
+					local = new Point(posicao.x, posicao.y - quadrante);
+					gatherInfo(local, quadrante);
+					
+					local = new Point(posicao.x, posicao.y + quadrante);
+					gatherInfo(local, quadrante);
+					
+					local = new Point(posicao.x - quadrante, posicao.y - quadrante);
+					gatherInfo(local, quadrante);
+					
+					local = new Point(posicao.x + quadrante, posicao.y + quadrante);
+					gatherInfo(local, quadrante);
+					
+					local = new Point(posicao.x - quadrante, posicao.y + quadrante);
+					gatherInfo(local, quadrante);
+					
+					local = new Point(posicao.x + quadrante, posicao.y - quadrante);
+					gatherInfo(local, quadrante);
+				}
+			}
+		}
+	}
+	
 	private void openChest()
 	{
-		/**
-		 * Caso ele tenha encontrado uma Flecha
-		 */
-		if(Math.random() < 0.4)
+		for (int i = 0; i < dungeon.getLocal(posicao).length(); i++)
 		{
-			if(Math.random() < 0.4)
+			if(dungeon.getLocal(posicao).charAt(i) == 'B')
 			{
+				/**
+				 * Caso ele tenha encontrado uma Flecha
+				 */
 				if(Math.random() < 0.4)
 				{
-					inventory.add(Item.ARROW, 3);
+					if(Math.random() < 0.4)
+					{
+						if(Math.random() < 0.4)
+						{
+							inventory.add(Item.ARROW, 3);
+						}
+						else
+						{
+							inventory.add(Item.ARROW, 2);
+						}
+					}
+					else
+					{
+						inventory.add(Item.ARROW, 1);
+					}
 				}
-				else
+				/**
+				 * Caso ele tenha encontrado uma picareta
+				 */
+				if(Math.random() < 0.25)
 				{
-					inventory.add(Item.ARROW, 2);
+					if(Math.random() < 0.25)
+					{
+						inventory.add(Item.PICKAXE, 2);
+					}
+					else
+					{
+						inventory.add(Item.PICKAXE, 1);
+					}
+				}
+				/*
+				 * Caso ele tenha encontrado um Óculos de Miopia
+				 */
+				if(Math.random() < 0.15)
+				{
+					inventory.add(Item.GLASSES, 1);
+				}
+				/**
+				 * Caso ele tenha ativado o alarme
+				 */
+				if(Math.random() < 0.1)
+				{
+					// Ativar o alarme aqui
+				}
+				/**
+				 * Caso ele tenha encontrado um mapa
+				 */
+				if(Math.random() < 0.05)
+				{
+					inventory.add(Item.MAP, 1);
 				}
 			}
-			else
-			{
-				inventory.add(Item.ARROW, 1);
-			}
-		}
-		/**
-		 * Caso ele tenha encontrado uma picareta
-		 */
-		if(Math.random() < 0.25)
-		{
-			if(Math.random() < 0.25)
-			{
-				inventory.add(Item.PICKAXE, 2);
-			}
-			else
-			{
-				inventory.add(Item.PICKAXE, 1);
-			}
-		}
-		/*
-		 * Caso ele tenha encontrado um Óculos de Miopia
-		 */
-		if(Math.random() < 0.15)
-		{
-			inventory.add(Item.GLASSES, 1);
-		}
-		/**
-		 * Caso ele tenha ativado o alarme
-		 */
-		if(Math.random() < 0.1)
-		{
-			// Ativar o alarme aqui
-		}
-		/**
-		 * Caso ele tenha encontrado um mapa
-		 */
-		if(Math.random() < 0.05)
-		{
-			inventory.add(Item.MAP, 1);
 		}
 	}
 	
@@ -332,6 +540,7 @@ public class Human extends Creature
 	
 	public List<Possibility> getPossibilities()
 	{
+		checkPossibilities();
 		return possibleActions;
 	}
 }

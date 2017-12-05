@@ -31,6 +31,11 @@ public class Creature
 			}
 			return false;
 		}
+		
+		public boolean sameLocation(Point point)
+		{
+			return this.local.equals(point);
+		}
 	};
 	
 	/// No ato de atirar eu devo mandar a posicao inicial e a direcão
@@ -146,18 +151,20 @@ public class Creature
 	
 	public void gatherInfo(Point local, int quadrante)
 	{
-		
-		Knowledge sabedoria = new Knowledge();
-		sabedoria.local = local;
-		if(quadrante == 0)
+		if(dungeon.validPoint(local))
 		{
-			sabedoria.info = dungeon.getLocal(local);
+			Knowledge sabedoria = new Knowledge();
+			sabedoria.local = local;
+			if(quadrante == 0)
+			{
+				sabedoria.info = dungeon.getLocal(local);
+			}
+			else
+			{
+				sabedoria.info = dungeon.getLocalObstacle(local);
+			}
+			base.add(sabedoria);
 		}
-		else
-		{
-			sabedoria.info = dungeon.getLocalObstacle(local);
-		}
-		base.add(sabedoria);
 	}
 	
 	public void gatherDungeon()
