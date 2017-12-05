@@ -10,10 +10,22 @@ public class Board
 	
 	public List<ArrayList<String>> board = new ArrayList<ArrayList<String>>();
 	public List<ArrayList<String>> unmovablesBoard = new ArrayList<ArrayList<String>>();
+	private List<ManageAtalhos> connections = new ArrayList<ManageAtalhos>();
 	public Obstacles rules = new Obstacles();
 	
 	private int width;
 	private int height;
+	
+	public class ManageAtalhos
+	{
+		public Point entrada;
+		public Point saida;
+		
+		public boolean compare(Point pos)
+		{
+			return(pos == entrada);
+		}
+	}
 	
 	public void setBoardSize(int rows, int cols)
 	{
@@ -86,6 +98,7 @@ public class Board
 		}
 		senses();
 		generateUnmovables();
+		connectAtalhos();
 		// System.out.println(rules.getEntrada() + ", " + rules.getSaida());
 	}
 	
@@ -113,6 +126,24 @@ public class Board
 				tempBoard.add(result.toString());
 			}
 			unmovablesBoard.add(tempBoard);
+		}
+	}
+	
+	private void connectAtalhos()
+	{
+		List<Point> atalhos = rules.getAtalhos();
+		for(int i = 0; i < atalhos.size(); i += 2)
+		{
+			ManageAtalhos connect = new ManageAtalhos();
+						
+			connect.entrada = atalhos.get(i);
+			connect.saida = atalhos.get(i + 1);
+			connections.add(connect);
+			
+			connect.entrada = atalhos.get(i + 1);
+			connect.saida = atalhos.get(i);
+			connections.add(connect);
+			
 		}
 	}
 	
@@ -380,10 +411,11 @@ public class Board
 	
 	public void printBoard()
 	{
-		System.out.println("BOARD = ");
+		System.out.println("BOARD" );
+		System.out.println();
 		for (int i = 0; i < this.board.size(); i++)
 		{
-			System.out.println(this.board.get(i));
+			System.out.println(i + "\t" + this.board.get(i));
 		}
 		
 //		System.out.println("UNMOVABLE = ");

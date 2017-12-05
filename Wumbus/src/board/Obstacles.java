@@ -80,7 +80,7 @@ public class Obstacles
 		spacesLeft = width * height;
 		maxPocos = width * height / 18;
 		maxRochas = width * height / 5;
-		maxAtalhos = width * height / 50;
+		maxAtalhos = 2 * (int) (width * height / 100); /// Multiplicado por 2 para forçar a ser par
 		maxTorres = width * height / 100;
 		maxDesm = width * height / 40;
 		maxBaus = width * height / 100;
@@ -125,6 +125,11 @@ public class Obstacles
 	public ArrayList<Point> getFogos()
 	{
 		return fogos;
+	}
+	
+	public ArrayList<Point> getAtalhos()
+	{
+		return atalhos;
 	}
 	
 	public String enforceRules(int linha, int coluna, String atual)
@@ -231,7 +236,7 @@ public class Obstacles
 					{
 						if((Math.abs(linha - entrada.x) + Math.abs(coluna - entrada.y)) >= 3 && (Math.abs(linha - saida.x) + Math.abs(coluna - saida.y)) >= 3)
 						{
-							if(Math.random() < (float) maxPocos / (spacesLeft - 33))
+							if(Math.random() < (float) maxPocos / (spacesLeft))
 							{
 								spacesLeft -= 1;
 								pocos.add(new Point(linha, coluna));
@@ -248,13 +253,8 @@ public class Obstacles
 				}
 				if(linha == upperWall && coluna == rightWall)
 				{
-					numTentativas++;
-					if(numTentativas == 2)
-					{
-						System.out.println("POÇOS = " + numPocos);
-						pocosDefinidos = true;
-						numTentativas = 0;
-					}
+					System.out.println("POÇOS = " + numPocos);
+					pocosDefinidos = true;
 				}
 				break;
 			case MONSTRO:
@@ -361,10 +361,9 @@ public class Obstacles
 									int numItt = 0;
 									for (int x = 0; x < atalhos.size(); x++)
 									{
-										if(Math.sqrt(Math.pow(linha - atalhos.get(atalhos.size() - 1).x, 2)
-												+ Math.pow(coluna - atalhos.get(atalhos.size() - 1).y, 2)) <= 5)
+										if(Math.abs(linha - atalhos.get(atalhos.size() - 1).x) + Math.abs(coluna - atalhos.get(atalhos.size() - 1).y) <= 5)
 										{
-											if(Math.sqrt(Math.pow(linha - atalhos.get(x).x, 2) + Math.pow(coluna - atalhos.get(x).y, 2)) > 1.5)
+											if(Math.abs(linha - atalhos.get(x).x) + Math.abs(coluna - atalhos.get(x).y) > 2)
 											{
 												numItt++;
 												if(numItt == atalhos.size())
@@ -388,18 +387,10 @@ public class Obstacles
 								}
 								if(numAtalhos == maxAtalhos)
 								{
+									System.out.println("ATALHOS: " + numAtalhos + " - " + maxAtalhos);
 									atalhosDefinidos = true;
 								}
 							}
-						}
-					}
-					if(linha == upperWall && coluna == rightWall)
-					{
-						numTentativas++;
-						if(numTentativas == 2)
-						{
-							atalhosDefinidos = true;
-							numTentativas = 0;
 						}
 					}
 				}

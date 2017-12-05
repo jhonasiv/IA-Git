@@ -4,6 +4,7 @@ package creatures;
 import java.awt.Point;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -23,22 +24,19 @@ public class AI
 		this.human = human;
 		this.board = board;
 		this.inventory = inventory;
-		possibilities = human.getPossibilities();
-		base = human.getBase();
-		inventoryInfo = inventory.check();
-		generateRef();
-		readBase();
-		printRef();
+		generateMoveBase();
+		update();
+		printMoveBase();
 	}
 	
 	private enum Entity {
 		POCO, MONSTRO, OURO
 	}
 	
-	private class Trail
+	private class MovementChoice
 	{
 		
-		private class LinkEntity
+		private class ProbEntity
 		{
 			
 			public Entity entity;
@@ -79,7 +77,7 @@ public class AI
 		private int infoValue = 1;
 		public int heuristic = 0;
 		private String info = "";
-		public List<LinkEntity> possibleEntities = new ArrayList<LinkEntity>();
+		public List<ProbEntity> possibleEntities = new ArrayList<ProbEntity>();
 		private boolean visited = false;
 		private boolean safe = false;
 		DecimalFormat numberFormat = new DecimalFormat("#.00");
@@ -106,6 +104,71 @@ public class AI
 			interpret();
 		}
 		
+		private void interpret()
+		{
+			for (int i = 0; i < info.length(); i++)
+			{
+				if(info.charAt(i) == 'P')
+				{
+					infoValue += -100;
+				}
+				else if(info.charAt(i) == 'M')
+				{
+					infoValue += -100;
+				}
+				else if(info.charAt(i) == 'S')
+				{
+					infoValue += 100;
+				}
+				else if(info.charAt(i) == 'O')
+				{
+					infoValue += 75;
+				}
+				else if(info.charAt(i) == 'F')
+				{
+					infoValue += 35;
+				}
+				else if(info.charAt(i) == 'A')
+				{
+					infoValue += 50;
+				}
+				else if(info.charAt(i) == 'T')
+				{
+					infoValue += 75;
+				}
+				else if(info.charAt(i) == 'R')
+				{
+					if(inventoryInfo.get(5).possession)
+					{
+						if(inventoryInfo.get(5).number > 1)
+						{
+							infoValue += 5;
+						}
+						else
+						{
+							infoValue += -5;
+						}
+					}
+					else
+					{
+						infoValue += -150;
+					}
+				}
+				else if(info.charAt(i) == 'B')
+				{
+					infoValue += 50;
+				}
+				else if(info.charAt(i) == 'D')
+				{
+					if(visited)
+					{
+						infoValue += 100;
+					}
+				}
+			}
+			calculate();
+		}
+		
 		private void getModifier()
 		{
 			
@@ -118,7 +181,7 @@ public class AI
 			int shortcutWeight = 35;
 			
 			boolean towerFound = false;
-			boolean fireFound = false;
+			boolean fiMoveBaseound = false;
 			boolean chestFound = false;
 			boolean goldFound = false;
 			boolean exitFound = false;
@@ -144,7 +207,7 @@ public class AI
 					}
 					if(base.get(i).info.charAt(j) == 'F')
 					{
-						fireFound = true;
+						fiMoveBaseound = true;
 						knownFires.add(base.get(i).local);
 					}
 					if(base.get(i).info.charAt(j) == 'B')
@@ -186,7 +249,7 @@ public class AI
 				towerModifier = (double) (towerWeight / (towerDist));
 			}
 			
-			if(fireFound)
+			if(fiMoveBaseound)
 			{
 				for (int i = 0; i < knownFires.size(); i++)
 				{
@@ -271,80 +334,25 @@ public class AI
 			distModifier = towerModifier + fireModifier + chestModifier + goldModifier + exitModifier + monsterModifier + shortcutModifier;
 		}
 		
-		private void interpret()
-		{
-			for (int i = 0; i < info.length(); i++)
-			{
-				if(info.charAt(i) == 'P')
-				{
-					infoValue += -100;
-				}
-				else if(info.charAt(i) == 'M')
-				{
-					infoValue += -100;
-				}
-				else if(info.charAt(i) == 'S')
-				{
-					infoValue += 100;
-				}
-				else if(info.charAt(i) == 'O')
-				{
-					infoValue += 75;
-				}
-				else if(info.charAt(i) == 'F')
-				{
-					infoValue += 35;
-				}
-				else if(info.charAt(i) == 'A')
-				{
-					infoValue += 50;
-				}
-				else if(info.charAt(i) == 'T')
-				{
-					infoValue += 75;
-				}
-				else if(info.charAt(i) == 'R')
-				{
-					if(inventoryInfo.get(5).number > 1)
-					{
-						infoValue += 5;
-					}
-					else
-					{
-						infoValue += -5;
-					}
-				}
-				else if(info.charAt(i) == 'B')
-				{
-					infoValue += 50;
-				}
-				else if(info.charAt(i) == 'D')
-				{
-					infoValue += 100;
-				}
-			}
-			calculate();
-		}
-		
 		private void calculate()
 		{
 			getModifier();
 			if(possibleEntities.isEmpty())
 			{
-				heuristic = (int) (baseValue * distModifier) + infoValue;
+				heuristic = (int) (baseValue * (distModifier + infoValue));
 			}
 			else
 			{
 				for (int i = 0; i < possibleEntities.size(); i++)
 				{
-					heuristic += baseValue * possibleEntities.get(i).getProbability() * possibleEntities.get(i).value;
+					heuristic += (int) (possibleEntities.get(i).getProbability() * possibleEntities.get(i).value);
 				}
 			}
 		}
 		
 		public void addPossibility(Entity ent, float probability)
 		{
-			LinkEntity link = new LinkEntity();
+			ProbEntity link = new ProbEntity();
 			link.setEntity(ent);
 			link.setProbability(probability);
 			possibleEntities.add(link);
@@ -377,7 +385,6 @@ public class AI
 		
 		private void changeBase()
 		{
-			
 			baseValue = -1;
 		}
 		
@@ -404,8 +411,10 @@ public class AI
 				case 4:
 					return numberFormat.format(goldModifier);
 				case 5:
-					return numberFormat.format(exitDist);
+					return numberFormat.format(exitModifier);
 				case 6:
+					return numberFormat.format(shortcutModifier);
+				case 7:
 					return numberFormat.format(monsterModifier);
 			}
 			return null;
@@ -417,31 +426,31 @@ public class AI
 	private Inventory inventory;
 	private List<Possibility> possibilities;
 	private List<Knowledge> base;
-	private List<ArrayList<Trail>> refBase = new ArrayList<ArrayList<Trail>>();
+	private List<ArrayList<MovementChoice>> moveBase = new ArrayList<ArrayList<MovementChoice>>();
 	private List<InventoryInfo> inventoryInfo = new ArrayList<InventoryInfo>();
 	
-	private void generateRef()
+	private void generateMoveBase()
 	{
-		ArrayList<Trail> tempBase = new ArrayList<Trail>();
+		ArrayList<MovementChoice> tempBase = new ArrayList<MovementChoice>();
 		List<ArrayList<String>> unmovables = board.getUnmovablesBoard();
 		for (int i = 0; i < unmovables.size(); i++)
 		{
-			tempBase = new ArrayList<Trail>();
+			tempBase = new ArrayList<MovementChoice>();
 			for (int j = 0; j < unmovables.get(i).size(); j++)
 			{
-				Trail trail = new Trail();
-				trail.local = new Point(i, j);
-				tempBase.add(trail);
+				MovementChoice movementChoice = new MovementChoice();
+				movementChoice.local = new Point(i, j);
+				tempBase.add(movementChoice);
 			}
-			refBase.add(tempBase);
+			moveBase.add(tempBase);
 		}
 		
 	}
 	
 	public void update()
 	{
-		base.clear();
-		possibilities.clear();
+		base = new ArrayList<Creature.Knowledge>();
+		possibilities = new ArrayList<Human.Possibility>();
 		base = human.getBase();
 		possibilities = human.getPossibilities();
 		inventoryInfo = inventory.check();
@@ -450,49 +459,55 @@ public class AI
 	
 	private void readBase()
 	{
-		refBase.get(human.getPosicao().x).get(human.getPosicao().y).visit();
+		moveBase.get(human.getPosicao().x).get(human.getPosicao().y).visit();
 		for (int i = 0; i < base.size(); i++)
 		{
-			refBase.get(base.get(i).local.x).get(base.get(i).local.y).setInfo(base.get(i).info);
+			moveBase.get(base.get(i).local.x).get(base.get(i).local.y).setInfo(base.get(i).info);
 		}
 	}
 	
-	public void printRef()
+	public void printMoveBase()
 	{
 		System.out.println("\n\nHEURISTIC ");
-		for (int i = 0; i < refBase.size(); i++)
+		for (int i = 0; i < moveBase.size(); i++)
 		{
-			System.out.print("[");
-			for (int j = 0; j < refBase.get(i).size(); j++)
+			System.out.print(i + "\t [");
+			for (int j = 0; j < moveBase.get(i).size(); j++)
 			{
-				System.out.print(refBase.get(i).get(j).printHeuristic());
-				if(j != refBase.get(i).size() - 1)
+				System.out.print(moveBase.get(i).get(j).printHeuristic());
+				if(j != moveBase.get(i).size() - 1)
 				{
-					System.out.print(", ");
+					System.out.print("  ");
 				}
 			}
 			System.out.println("]");
 		}
 		
+	}
+	
+	public void printDistanceModifier()
+	{
 		System.out.println("\n\nDISTANCE MODIFIERS ");
-		for (int i = 0; i < refBase.size(); i++)
+		for (int i = 0; i < moveBase.size(); i++)
 		{
-			System.out.print("[");
-			for (int j = 0; j < refBase.get(i).size(); j++)
+			System.out.print(i + "\t [");
+			for (int j = 0; j < moveBase.get(i).size(); j++)
 			{
-				System.out.print(refBase.get(i).get(j).printModifier());
-				if(j != refBase.get(i).size() - 1)
+				System.out.print(moveBase.get(i).get(j).printModifier());
+				if(j != moveBase.get(i).size() - 1)
 				{
 					System.out.print("    ");
 				}
 			}
 			System.out.println("]");
 		}
+		
 	}
+	
 	public void printSpecificModifier()
 	{
 		System.out.println("\n\n");
-		for (int n = 1; n <= 5; n++)
+		for (int n = 1; n <= 7; n++)
 		{
 			switch (n)
 			{
@@ -512,16 +527,19 @@ public class AI
 					System.out.println("EXIT");
 					break;
 				case 6:
+					System.out.println("SHORTCUTS");
+					break;
+				case 7:
 					System.out.println("MONSTER");
 					break;
 			}
-			for (int i = 0; i < refBase.size(); i++)
+			for (int i = 0; i < moveBase.size(); i++)
 			{
-				System.out.print("[");
-				for (int j = 0; j < refBase.get(i).size(); j++)
+				System.out.print(i + "\t [");
+				for (int j = 0; j < moveBase.get(i).size(); j++)
 				{
-					System.out.print(refBase.get(i).get(j).printSpecificModifier(n));
-					if(j != refBase.get(i).size() - 1)
+					System.out.print(moveBase.get(i).get(j).printSpecificModifier(n));
+					if(j != moveBase.get(i).size() - 1)
 					{
 						System.out.print("    ");
 					}

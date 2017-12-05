@@ -13,7 +13,7 @@ public class Human extends Creature
 {
 	
 	private enum Actions {
-		MOVER, ENTRAR_ATALHO, ATIRAR, QUEBRAR
+		MOVER, ATIRAR, QUEBRAR
 	}
 	
 	private enum States {
@@ -46,7 +46,8 @@ public class Human extends Creature
 		state = States.CURIOUS;
 		inventory.add(Item.BOW, 1);
 		inventory.add(Item.ARROW, 1);
-		inventory.add(Item.MAP, 1);
+		inventory.add(Item.PICKAXE, 1);
+//		inventory.add(Item.MAP, 1);
 		inventory.check();
 //		inventory.print();
 		percepcao();
@@ -137,25 +138,6 @@ public class Human extends Creature
 		else
 		{
 			possib.possible = false;
-		}
-		possibleActions.add(possib);
-				
-		///ENTRAR ATALHO
-		possib = new Possibility();
-		possib.action = Actions.ENTRAR_ATALHO;
-		possib.direction = null;
-		String quadrante = dungeon.getLocal(posicao);
-		for(int i = 0; i < quadrante.length(); i++)
-		{
-			if(quadrante.charAt(i) == 'A')
-			{
-				possib.possible = true;
-				break;
-			}
-			else
-			{
-				possib.possible = false;
-			}
 		}
 		possibleActions.add(possib);
 				
