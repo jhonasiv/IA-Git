@@ -60,16 +60,24 @@ public class Human extends Creature
 	private Inventory inventory;
 	private int numMoves = 0;
 	private List<Possibility> possibleActions = new ArrayList<Possibility>();
+	private boolean safety_state_change = false;
 	
 	public void act()
 	{
 		Possibility action = new Possibility();
 		int movesThisTurn = 0;
-		while ((movesThisTurn < (int) speed))
+		int appr = 0;
+		int totalMoves = (int)speed + (int)numMoves/4;
+		while ((movesThisTurn < totalMoves) && alive)
 		{
-			interactWithBoard();
+			System.out.println("CONTA " + (((double)(numMoves*speed))));
 			checkPossibilities();
+			percepcao();
 			ai.update();
+			dungeon.printBoard();
+			ai.printMoveBase();
+			printBase();
+			
 			action = ai.chooseAction();
 			switch (action.action)
 			{
@@ -89,17 +97,20 @@ public class Human extends Creature
 					mine(action.local);
 					break;
 			}
-			percepcao();
 			movesThisTurn++;
-			printBase();
-			ai.printMoveBase();
+			if(speed%1 != 0)
+			{
+				numMoves++;
+			}
+			interactWithBoard();
+			// ai.printSpecificModifier();
 		}
 	}
 	
 	private void move(Point location)
 	{
 		posicao = location;
-		System.out.println(posicao);
+		// System.out.println(posicao);
 	}
 	
 	private void shoot(Direction dir, Item item)
@@ -350,31 +361,48 @@ public class Human extends Creature
 	
 	private void statesMachine()
 	{
-		switch (state)
+		if(!safety_state_change)
 		{
-			case CURIOUS:
-				speed = 1;
-				break;
-			case DESPERATE:
-				speed += 0.25;
-				break;
-			case LAST_BREATH:
-				speed += 1;
-				break;
+			switch (state)
+			{
+				case CURIOUS:
+					speed = 1;
+					break;
+				case DESPERATE:
+					speed += 0.25;
+					break;
+				case LAST_BREATH:
+					speed += 1;
+					safety_state_change = true;
+					break;
+			}
 		}
 	}
 	
 	private void interactWithBoard()
 	{
+		checkHealth();
+		seeRock();
 		takeGold();
 		takeTorch();
 		openChest();
 		goUpTower();
 	}
 	
+	private void checkHealth()
+	{
+		for (int n = 0; n < dungeon.getLocal(posicao).length(); n++)
+		{
+			if(dungeon.getLocal(posicao).charAt(n) == 'M' || dungeon.getLocal(posicao).charAt(n) == 'P')
+			{
+				die();
+			}
+		}
+	}
+	
 	private void enterShortcut()
 	{
-		for(int n = 0; n < dungeon.getLocal(posicao).length(); n++)
+		for (int n = 0; n < dungeon.getLocal(posicao).length(); n++)
 		{
 			if(dungeon.getLocal(posicao).charAt(n) == 'A')
 			{
@@ -389,6 +417,7 @@ public class Human extends Creature
 		{
 			if(dungeon.getLocal(posicao).charAt(n) == 'O')
 			{
+				changeState(States.LAST_BREATH);
 				dungeon.modifyBoard(posicao, "O", "");
 				for (int i = 0; i < base.size(); i++)
 				{
@@ -403,7 +432,7 @@ public class Human extends Creature
 	
 	private void takeTorch()
 	{
-		for(int n = 0; n < dungeon.getFires().size(); n++)
+		for (int n = 0; n < dungeon.getFires().size(); n++)
 		{
 			if((Math.abs(posicao.x - dungeon.getFires().get(n).x) <= 2 && Math.abs(posicao.y - dungeon.getFires().get(n).y) == 0)
 					|| (Math.abs(posicao.x - dungeon.getFires().get(n).x) == 0 && Math.abs(posicao.y - dungeon.getFires().get(n).y) <= 2))
@@ -424,7 +453,7 @@ public class Human extends Creature
 	
 	private void goUpTower()
 	{
-		for(int n = 0; n < dungeon.getTowers().size(); n++)
+		for (int n = 0; n < dungeon.getTowers().size(); n++)
 		{
 			if(Math.sqrt(Math.pow(posicao.x - dungeon.getTowers().get(n).x, 2) + Math.pow(posicao.y - dungeon.getTowers().get(n).y, 2)) <= 3)
 			{
@@ -463,6 +492,7 @@ public class Human extends Creature
 					local = new Point(posicao.x + quadrante, posicao.y - quadrante);
 					gatherInfo(local, quadrante);
 				}
+				dungeon.modifyBoard(posicao, "T", "");
 			}
 		}
 	}
@@ -529,6 +559,7 @@ public class Human extends Creature
 				{
 					inventory.add(Item.MAP, 1);
 				}
+				dungeon.modifyBoard(posicao, "B", "");
 			}
 		}
 	}
@@ -540,7 +571,6 @@ public class Human extends Creature
 	
 	public List<Possibility> getPossibilities()
 	{
-		checkPossibilities();
 		return possibleActions;
 	}
 }

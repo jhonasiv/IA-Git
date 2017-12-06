@@ -50,7 +50,7 @@ public class Creature
 	protected int visao = 0;
 	protected Point posicao = new Point();
 	protected boolean alive = true;
-	protected float speed = 1;
+	protected double speed = 1.25;
 	
 	// \TODO: no futuro será private
 	protected void percepcao()
@@ -89,7 +89,6 @@ public class Creature
 				gatherInfo(local, 0);
 			}
 		}
-		seeRock();
 		filterBase();
 	}
 	
@@ -111,40 +110,52 @@ public class Creature
 		}
 	}
 	
-	private void seeRock()
+	protected void seeRock()
 	{
 		Point local = new Point();
 		if(dungeon.validPoint(new Point(posicao.x - 1, posicao.y)))
 		{
 			local = new Point(posicao.x - 1, posicao.y);
-			if(dungeon.getLocal(local) == "R")
+			for (int i = 0; i < dungeon.getLocal(local).length(); i++)
 			{
-				gatherInfo(local, 0);
+				if(dungeon.getLocal(local).charAt(i) == 'R')
+				{
+					gatherInfo(local, 0);
+				}
 			}
 		}
 		if(dungeon.validPoint(new Point(posicao.x + 1, posicao.y)))
 		{
 			local = new Point(posicao.x + 1, posicao.y);
-			if(dungeon.getLocal(local) == "R")
+			for (int i = 0; i < dungeon.getLocal(local).length(); i++)
 			{
-				gatherInfo(local, 0);
+				if(dungeon.getLocal(local).charAt(i) == 'R')
+				{
+					gatherInfo(local, 0);
+				}
 			}
 		}
 		if(dungeon.validPoint(new Point(posicao.x, posicao.y - 1)))
 		{
 			local = new Point(posicao.x, posicao.y - 1);
-			if(dungeon.getLocal(local) == "R")
+			for (int i = 0; i < dungeon.getLocal(local).length(); i++)
 			{
-				gatherInfo(local, 0);
+				if(dungeon.getLocal(local).charAt(i) == 'R')
+				{
+					gatherInfo(local, 0);
+				}
 			}
 			
 		}
 		if(dungeon.validPoint(new Point(posicao.x, posicao.y + 1)))
 		{
 			local = new Point(posicao.x, posicao.y + 1);
-			if(dungeon.getLocal(local) == "R")
+			for (int i = 0; i < dungeon.getLocal(local).length(); i++)
 			{
-				gatherInfo(local, 0);
+				if(dungeon.getLocal(local).charAt(i) == 'R')
+				{
+					gatherInfo(local, 0);
+				}
 			}
 		}
 	}
@@ -188,6 +199,11 @@ public class Creature
 			}
 		}
 		
+	}
+	
+	public void die()
+	{
+		alive = false;
 	}
 	
 	public void setVisao(int novoValor)

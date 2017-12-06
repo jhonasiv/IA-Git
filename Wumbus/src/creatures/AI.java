@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 
 import creatures.Creature.Knowledge;
 import creatures.Human.Actions;
@@ -18,6 +19,9 @@ import items.Inventory;
 import items.Inventory.InventoryInfo;
 import board.*;
 
+
+//TODO: preciso implementar sensaçoes de brisa, fedor etc
+// 		arrumar aura de fogo e torre se mantendo depois de serem usados
 public class AI
 {
 	
@@ -28,7 +32,7 @@ public class AI
 		this.inventory = inventory;
 		generateMoveBase();
 		update();
-//		printMoveBase();
+		// printMoveBase();
 	}
 	
 	private enum Entity {
@@ -75,13 +79,13 @@ public class AI
 		
 		public Point local = new Point();
 		private double distModifier = 0;
-		private int baseValue = 1;
 		private int infoValue = 1;
 		public int heuristic = 0;
 		private String info = "";
 		public List<ProbEntity> possibleEntities = new ArrayList<ProbEntity>();
 		private boolean visited = false;
 		private boolean safe = false;
+		private int numVisits = 0;
 		DecimalFormat numberFormat = new DecimalFormat("#.00");
 		
 		double towerModifier = 0;
@@ -106,12 +110,13 @@ public class AI
 			interpret();
 		}
 		
+		public String getInfo()
+		{
+			return info;
+		}
+		
 		private void interpret()
 		{
-			if(visited)
-			{
-				infoValue = 1;
-			}
 			for (int i = 0; i < info.length(); i++)
 			{
 				if(info.charAt(i) == 'P')
@@ -187,7 +192,7 @@ public class AI
 			int shortcutWeight = 35;
 			
 			boolean towerFound = false;
-			boolean fiMoveBaseound = false;
+			boolean firesFound = false;
 			boolean chestFound = false;
 			boolean goldFound = false;
 			boolean exitFound = false;
@@ -213,7 +218,7 @@ public class AI
 					}
 					if(base.get(i).info.charAt(j) == 'F')
 					{
-						fiMoveBaseound = true;
+						firesFound = true;
 						knownFires.add(base.get(i).local);
 					}
 					if(base.get(i).info.charAt(j) == 'B')
@@ -255,7 +260,7 @@ public class AI
 				towerModifier = (double) (towerWeight / (towerDist));
 			}
 			
-			if(fiMoveBaseound)
+			if(firesFound)
 			{
 				for (int i = 0; i < knownFires.size(); i++)
 				{
@@ -337,6 +342,34 @@ public class AI
 			{
 				shortcutModifier = shortcutWeight;
 			}
+
+			
+			if(visited && info.contains("T"))
+			{
+				towerModifier = 0;
+			}
+			if(visited && info.contains("F"))
+			{
+				fireModifier = 0;
+			}
+			if(visited && info.contains("A"))
+			{
+				shortcutModifier = 0;
+			}
+			if(visited && info.contains("B"))
+			{
+				chestModifier = 0;
+			}
+			if(visited && info.contains("S"))
+			{
+				exitModifier = 0;
+			}
+			if(visited && info.contains("M"))
+			{
+				monsterModifier = 0;
+			}
+			
+			
 			distModifier = towerModifier + fireModifier + chestModifier + goldModifier + exitModifier + monsterModifier + shortcutModifier;
 		}
 		
@@ -345,7 +378,7 @@ public class AI
 			getModifier();
 			if(possibleEntities.isEmpty())
 			{
-				heuristic = (int) (baseValue * (distModifier + infoValue));
+				heuristic = (int) (distModifier + infoValue);
 			}
 			else
 			{
@@ -353,6 +386,10 @@ public class AI
 				{
 					heuristic += (int) (possibleEntities.get(i).getProbability() * possibleEntities.get(i).value);
 				}
+			}
+			if(visited)
+			{
+				heuristic = -Math.abs(heuristic) - numVisits;
 			}
 		}
 		
@@ -386,7 +423,11 @@ public class AI
 		public void visit()
 		{
 			visited = true;
-			baseValue = -1;;
+			numVisits++;
+			if(human.alive)
+			{
+				safe = true;
+			}
 		}
 		
 		public String printHeuristic()
@@ -471,9 +512,10 @@ public class AI
 	{
 		int choiceIndex = 0;
 		List<Integer> heuristics = new ArrayList<Integer>();
-		for(int i = 0; i < possibilities.size(); i++)
+		List<Integer> equals = new ArrayList<Integer>();
+		for (int i = 0; i < possibilities.size(); i++)
 		{
-			switch(possibilities.get(i).action)
+			switch (possibilities.get(i).action)
 			{
 				case MOVER:
 					if(possibilities.get(i).possible)
@@ -508,7 +550,7 @@ public class AI
 		}
 		
 		int biggestValue = -9999;
-		for(int i = 0; i < heuristics.size(); i++)
+		for (int i = 0; i < heuristics.size(); i++)
 		{
 			if(biggestValue < heuristics.get(i))
 			{
@@ -516,6 +558,20 @@ public class AI
 				biggestValue = heuristics.get(i);
 			}
 		}
+		for (int i = 0; i < heuristics.size(); i++)
+		{
+			if(biggestValue == heuristics.get(i))
+			{
+				equals.add(i);
+			}
+		}
+		Random ran = new Random();
+		if(equals.size() > 1)
+		{
+			choiceIndex = equals.get(ran.nextInt(equals.size() - 1));
+		}
+		System.out.println(choiceIndex);
+		
 		return possibilities.get(choiceIndex);
 	}
 	
@@ -525,6 +581,16 @@ public class AI
 		for (int i = 0; i < base.size(); i++)
 		{
 			moveBase.get(base.get(i).local.x).get(base.get(i).local.y).setInfo(base.get(i).info);
+		}
+		for (int i = 0; i < moveBase.size(); i++)
+		{
+			for (int j = 0; j < moveBase.get(i).size(); j++)
+			{
+				if(moveBase.get(i).get(j).getInfo().equals(""))
+				{
+					moveBase.get(i).get(j).setInfo("");
+				}
+			}
 		}
 	}
 	
