@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
 public class Board
 {
 	
@@ -482,6 +484,7 @@ public class Board
 			if(connections.get(i).equals(entrada))
 			{
 				saida = connections.get(i).saida;
+				System.out.println("SAIDA :" + saida);
 			}
 		}
 		return saida;

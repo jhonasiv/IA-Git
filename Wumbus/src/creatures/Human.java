@@ -67,17 +67,20 @@ public class Human extends Creature
 		Possibility action = new Possibility();
 		int movesThisTurn = 0;
 		int appr = 0;
-		int totalMoves = (int)speed + (int)numMoves/4;
+		int totalMoves = (int)speed + (int)(numMoves/4);
 		while ((movesThisTurn < totalMoves) && alive)
 		{
-			System.out.println("CONTA " + (((double)(numMoves*speed))));
 			checkPossibilities();
 			percepcao();
 			ai.update();
+//			ai.printSpecificModifier();
+			inventory.print();
+			ai.printPossibilites();
 			dungeon.printBoard();
 			ai.printMoveBase();
 			printBase();
 			
+			System.out.print("Posicao inicial: " + posicao);
 			action = ai.chooseAction();
 			switch (action.action)
 			{
@@ -98,12 +101,12 @@ public class Human extends Creature
 					break;
 			}
 			movesThisTurn++;
+			interactWithBoard();
+			System.out.println("\tMoveu " + movesThisTurn + " casas " + "\tPosicao final : " + posicao);
 			if(speed%1 != 0)
 			{
 				numMoves++;
 			}
-			interactWithBoard();
-			// ai.printSpecificModifier();
 		}
 	}
 	
@@ -305,7 +308,7 @@ public class Human extends Creature
 		}
 		possibleActions.add(possib);
 		
-		/// QUEBRAR ROCHA À ESQUERDA
+		/// QUEBRAR ROCHA ï¿½ ESQUERDA
 		possib = new Possibility();
 		possib.action = Actions.QUEBRAR;
 		possib.direction = Direction.ESQUERDA;
@@ -328,7 +331,7 @@ public class Human extends Creature
 		}
 		possibleActions.add(possib);
 		
-		/// QUEBRAR ROCHA À DIREITA
+		/// QUEBRAR ROCHA ï¿½ DIREITA
 		possib = new Possibility();
 		possib.action = Actions.QUEBRAR;
 		possib.direction = Direction.DIREITA;
@@ -387,6 +390,7 @@ public class Human extends Creature
 		takeTorch();
 		openChest();
 		goUpTower();
+		enterShortcut();
 	}
 	
 	private void checkHealth()
@@ -539,7 +543,7 @@ public class Human extends Creature
 					}
 				}
 				/*
-				 * Caso ele tenha encontrado um Óculos de Miopia
+				 * Caso ele tenha encontrado um ï¿½culos de Miopia
 				 */
 				if(Math.random() < 0.15)
 				{

@@ -19,8 +19,7 @@ import items.Inventory;
 import items.Inventory.InventoryInfo;
 import board.*;
 
-
-//TODO: preciso implementar sensaçoes de brisa, fedor etc
+//TODO: preciso implementar sensaï¿½oes de brisa, fedor etc
 // 		arrumar aura de fogo e torre se mantendo depois de serem usados
 public class AI
 {
@@ -46,10 +45,10 @@ public class AI
 		{
 			
 			public Entity entity;
-			private float probability = 0;
+			private double probability = 0;
 			public int value;
 			
-			public void setProbability(float val)
+			public void setProbability(double val)
 			{
 				probability = val;
 			}
@@ -71,9 +70,27 @@ public class AI
 				}
 			}
 			
-			public float getProbability()
+			public double getProbability()
 			{
 				return probability;
+			}
+			
+			public String toString()
+			{
+				String string = new String();
+				if(entity == Entity.POCO)
+				{
+					string = "P = " + probability;
+				}
+				else if(entity == Entity.MONSTRO)
+				{
+					string = "M = " + probability;
+				}
+				else if(entity == Entity.OURO)
+				{
+					string = "O = " + probability;
+				}
+				return string;
 			}
 		}
 		
@@ -88,25 +105,28 @@ public class AI
 		private int numVisits = 0;
 		DecimalFormat numberFormat = new DecimalFormat("#.00");
 		
-		double towerModifier = 0;
-		double fireModifier = 0;
-		double chestModifier = 0;
-		double goldModifier = 0;
-		double exitModifier = 0;
-		double monsterModifier = 0;
-		double shortcutModifier = 0;
+		private double towerModifier = 0;
+		private double fireModifier = 0;
+		private double chestModifier = 0;
+		private double goldModifier = 0;
+		private double exitModifier = 0;
+		private double monsterModifier = 0;
+		private double shortcutModifier = 0;
 		
-		double towerDist = Double.POSITIVE_INFINITY;
-		double fireDist = Double.POSITIVE_INFINITY;
-		double chestDist = Double.POSITIVE_INFINITY;
-		double goldDist = Double.POSITIVE_INFINITY;
-		double exitDist = Double.POSITIVE_INFINITY;
-		double monsterDist = Double.POSITIVE_INFINITY;
-		double shortcutDist = Double.POSITIVE_INFINITY;
+		private double towerDist = Double.POSITIVE_INFINITY;
+		private double fireDist = Double.POSITIVE_INFINITY;
+		private double chestDist = Double.POSITIVE_INFINITY;
+		private double goldDist = Double.POSITIVE_INFINITY;
+		private double exitDist = Double.POSITIVE_INFINITY;
+		private double monsterDist = Double.POSITIVE_INFINITY;
+		private double shortcutDist = Double.POSITIVE_INFINITY;
 		
 		public void setInfo(String info)
 		{
 			this.info = info;
+			addProbability(Entity.POCO, 0);
+			addProbability(Entity.MONSTRO, 0);
+			addProbability(Entity.OURO, 0);
 			interpret();
 		}
 		
@@ -117,6 +137,7 @@ public class AI
 		
 		private void interpret()
 		{
+			infoValue = 1;
 			for (int i = 0; i < info.length(); i++)
 			{
 				if(info.charAt(i) == 'P')
@@ -133,19 +154,48 @@ public class AI
 				}
 				else if(info.charAt(i) == 'O')
 				{
-					infoValue += 75;
+					if(visited)
+					{
+						infoValue += 1;
+					}
+					else
+					{
+						infoValue += 75;
+					}
 				}
 				else if(info.charAt(i) == 'F')
 				{
-					infoValue += 35;
+					if(visited)
+					{
+						infoValue += 1;
+					}
+					else
+					{
+						infoValue += 35;
+					}
 				}
 				else if(info.charAt(i) == 'A')
 				{
-					infoValue += 50;
+					if(visited)
+					{
+						infoValue += 10;
+					}
+					else
+					{
+						infoValue += 50;
+					}
 				}
 				else if(info.charAt(i) == 'T')
 				{
-					infoValue += 75;
+					
+					if(visited)
+					{
+						infoValue += 25;
+					}
+					else
+					{
+						infoValue += 75;
+					}
 				}
 				else if(info.charAt(i) == 'R')
 				{
@@ -167,7 +217,14 @@ public class AI
 				}
 				else if(info.charAt(i) == 'B')
 				{
-					infoValue += 50;
+					if(visited)
+					{
+						infoValue += 1;
+					}
+					else
+					{
+						infoValue += 50;
+					}
 				}
 				else if(info.charAt(i) == 'D')
 				{
@@ -182,6 +239,22 @@ public class AI
 		
 		private void getModifier()
 		{
+			
+			towerModifier = 0;
+			fireModifier = 0;
+			chestModifier = 0;
+			goldModifier = 0;
+			exitModifier = 0;
+			monsterModifier = 0;
+			shortcutModifier = 0;
+			
+			towerDist = Double.POSITIVE_INFINITY;
+			fireDist = Double.POSITIVE_INFINITY;
+			chestDist = Double.POSITIVE_INFINITY;
+			goldDist = Double.POSITIVE_INFINITY;
+			exitDist = Double.POSITIVE_INFINITY;
+			monsterDist = Double.POSITIVE_INFINITY;
+			shortcutDist = Double.POSITIVE_INFINITY;
 			
 			int towerWeight = 45;
 			int fireWeight = 20;
@@ -211,37 +284,37 @@ public class AI
 			{
 				for (int j = 0; j < base.get(i).info.length(); j++)
 				{
-					if(base.get(i).info.charAt(j) == 'T')
+					if(base.get(i).info.charAt(j) == 'T' && !moveBase.get(base.get(i).local.x).get(base.get(i).local.y).visited)
 					{
 						towerFound = true;
 						knownTowers.add(base.get(i).local);
 					}
-					if(base.get(i).info.charAt(j) == 'F')
+					if(base.get(i).info.charAt(j) == 'F' && !moveBase.get(base.get(i).local.x).get(base.get(i).local.y).visited)
 					{
 						firesFound = true;
 						knownFires.add(base.get(i).local);
 					}
-					if(base.get(i).info.charAt(j) == 'B')
+					if(base.get(i).info.charAt(j) == 'B' && !moveBase.get(base.get(i).local.x).get(base.get(i).local.y).visited)
 					{
 						chestFound = true;
 						knownChests.add(base.get(i).local);
 					}
-					if(base.get(i).info.charAt(j) == 'A')
+					if(base.get(i).info.charAt(j) == 'A' && !moveBase.get(base.get(i).local.x).get(base.get(i).local.y).visited)
 					{
 						shortcutFound = true;
 						knownShortcuts.add(base.get(i).local);
 					}
-					if(base.get(i).info.charAt(j) == 'O')
+					if(base.get(i).info.charAt(j) == 'O' && !moveBase.get(base.get(i).local.x).get(base.get(i).local.y).visited)
 					{
 						goldFound = true;
 						knownGold = base.get(i).local;
 					}
-					if(base.get(i).info.charAt(j) == 'S')
+					if(base.get(i).info.charAt(j) == 'S' && !moveBase.get(base.get(i).local.x).get(base.get(i).local.y).visited)
 					{
 						exitFound = true;
 						knownExit = base.get(i).local;
 					}
-					if(base.get(i).info.charAt(j) == 'M')
+					if(base.get(i).info.charAt(j) == 'M' && !moveBase.get(base.get(i).local.x).get(base.get(i).local.y).visited)
 					{
 						monsterFound = true;
 						knownMonster = base.get(i).local;
@@ -257,7 +330,7 @@ public class AI
 						towerDist = Math.abs(local.x - knownTowers.get(i).x) + Math.abs(local.y - knownTowers.get(i).y);
 					}
 				}
-				towerModifier = (double) (towerWeight / (towerDist));
+				towerModifier = (double) (towerWeight / (towerDist + 1));
 			}
 			
 			if(firesFound)
@@ -269,7 +342,7 @@ public class AI
 						fireDist = Math.abs(local.x - knownFires.get(i).x) + Math.abs(local.y - knownFires.get(i).y);
 					}
 				}
-				fireModifier = (double) (fireWeight / (fireDist));
+				fireModifier = (double) (fireWeight / (fireDist + 1));
 			}
 			if(chestFound)
 			{
@@ -280,7 +353,7 @@ public class AI
 						chestDist = Math.abs(local.x - knownChests.get(i).x) + Math.abs(local.y - knownChests.get(i).y);
 					}
 				}
-				chestModifier = (double) (chestWeight / (chestDist));
+				chestModifier = (double) (chestWeight / (chestDist + 1));
 			}
 			if(shortcutFound)
 			{
@@ -291,7 +364,7 @@ public class AI
 						shortcutDist = Math.abs(local.x - knownShortcuts.get(i).x) + Math.abs(local.y - knownShortcuts.get(i).y);
 					}
 				}
-				shortcutModifier = (double) (shortcutWeight / (shortcutDist));
+				shortcutModifier = (double) (shortcutWeight / (shortcutDist + 1));
 			}
 			
 			if(goldFound)
@@ -311,7 +384,7 @@ public class AI
 			if(monsterFound)
 			{
 				monsterDist = Math.abs(local.x - knownMonster.x) + Math.abs(local.y - knownMonster.y);
-				monsterModifier = (double) (monsterWeight / (monsterDist));
+				monsterModifier = (double) (monsterWeight / (monsterDist + 1));
 			}
 			
 			if(towerDist == 0)
@@ -342,7 +415,6 @@ public class AI
 			{
 				shortcutModifier = shortcutWeight;
 			}
-
 			
 			if(visited && info.contains("T"))
 			{
@@ -369,23 +441,17 @@ public class AI
 				monsterModifier = 0;
 			}
 			
-			
 			distModifier = towerModifier + fireModifier + chestModifier + goldModifier + exitModifier + monsterModifier + shortcutModifier;
 		}
 		
 		private void calculate()
 		{
 			getModifier();
-			if(possibleEntities.isEmpty())
+			
+			heuristic = (int) (distModifier + infoValue);
+			for (int i = 0; i < possibleEntities.size(); i++)
 			{
-				heuristic = (int) (distModifier + infoValue);
-			}
-			else
-			{
-				for (int i = 0; i < possibleEntities.size(); i++)
-				{
-					heuristic += (int) (possibleEntities.get(i).getProbability() * possibleEntities.get(i).value);
-				}
+				heuristic += (int)(possibleEntities.get(i).getProbability() * possibleEntities.get(i).value);
 			}
 			if(visited)
 			{
@@ -393,7 +459,7 @@ public class AI
 			}
 		}
 		
-		public void addPossibility(Entity ent, float probability)
+		private void addProbability(Entity ent, double probability)
 		{
 			ProbEntity link = new ProbEntity();
 			link.setEntity(ent);
@@ -401,7 +467,7 @@ public class AI
 			possibleEntities.add(link);
 		}
 		
-		public void changeProbability(Entity ent, float probability)
+		public void changeProbability(Entity ent, double probability)
 		{
 			if(!safe)
 			{
@@ -418,6 +484,11 @@ public class AI
 					}
 				}
 			}
+		}
+		
+		public boolean getSafe()
+		{
+			return safe;
 		}
 		
 		public void visit()
@@ -465,6 +536,16 @@ public class AI
 			}
 			return null;
 		}
+		
+		public String printPossibilities()
+		{
+			String string = new String();
+			for(int i = 0; i < possibleEntities.size(); i++)
+			{
+				string += possibleEntities.get(i).toString() + ", ";
+			}
+			return string;
+		}
 	}
 	
 	private class ShootChoice
@@ -494,6 +575,16 @@ public class AI
 				tempBase.add(movementChoice);
 			}
 			moveBase.add(tempBase);
+		}
+		for (int i = 0; i < moveBase.size(); i++)
+		{
+			for (int j = 0; j < moveBase.get(i).size(); j++)
+			{
+				if(moveBase.get(i).get(j).getInfo().equals(""))
+				{
+					moveBase.get(i).get(j).setInfo("");
+				}
+			}
 		}
 		
 	}
@@ -568,9 +659,9 @@ public class AI
 		Random ran = new Random();
 		if(equals.size() > 1)
 		{
-			choiceIndex = equals.get(ran.nextInt(equals.size() - 1));
+			choiceIndex = equals.get(ran.nextInt(equals.size()));
 		}
-		System.out.println(choiceIndex);
+		// System.out.println(choiceIndex);
 		
 		return possibilities.get(choiceIndex);
 	}
@@ -581,6 +672,162 @@ public class AI
 		for (int i = 0; i < base.size(); i++)
 		{
 			moveBase.get(base.get(i).local.x).get(base.get(i).local.y).setInfo(base.get(i).info);
+		}
+		
+		for (int i = 0; i < base.size(); i++)
+		{
+			Point local = new Point();
+			double probability = 0;
+			int[] possiblePlaces = new int[3];
+			for (int n = 0; n < base.get(i).info.length(); n++)
+			{
+				local = new Point(base.get(i).local);
+				local.setLocation(local.x - 1, local.y);
+				for (int p = 0; p < possiblePlaces.length; p++)
+				{
+					if(board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0)
+					{
+						possiblePlaces[p]++;
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x + 1, local.y);
+					if(board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0)
+					{
+						possiblePlaces[p]++;
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x, local.y - 1);
+					if(board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0)
+					{
+						possiblePlaces[p]++;
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x, local.y + 1);
+					if(board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0)
+					{
+						possiblePlaces[p]++;
+					}
+				}
+				if(base.get(i).info.charAt(n) == 'b')
+				{
+					if(possiblePlaces[0] != 4)
+					{
+						probability = 1 / (4 - possiblePlaces[0]);
+					}
+					else
+					{
+						probability = 0;
+					}
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x - 1, local.y);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x + 1, local.y);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x, local.y - 1);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x, local.y + 1);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, probability);
+					}
+				}
+				else if(base.get(i).info.charAt(n) == 'f')
+				{
+					if(possiblePlaces[1] != 4)
+					{
+						probability = 1 / (4 - possiblePlaces[1]);
+					}
+					else
+					{
+						probability = 0;
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x - 1, local.y);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x + 1, local.y);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x, local.y - 1);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x, local.y + 1);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, probability);
+					}
+				}
+				else if(base.get(i).info.charAt(n) == 'l')
+				{
+					if(possiblePlaces[2] != 4)
+					{
+						probability = 1 / (4 - possiblePlaces[2]);
+					}
+					else
+					{
+						probability = 0;
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x - 1, local.y);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x + 1, local.y);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x, local.y - 1);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, probability);
+					}
+					
+					local = new Point(base.get(i).local);
+					local.setLocation(local.x, local.y + 1);
+					if(board.validPoint(local))
+					{
+						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, probability);
+					}
+				}
+			}
 		}
 		for (int i = 0; i < moveBase.size(); i++)
 		{
@@ -630,6 +877,21 @@ public class AI
 			System.out.println("]");
 		}
 		
+	}
+	
+	public void printPossibilites()
+	{
+		System.out.println("\n\n");
+		for(int i = 0; i < moveBase.size();i++)
+		{
+			System.out.print(i);
+			for(int j = 0; j < moveBase.get(i).size(); j++)
+			{
+				System.out.print("[ ");
+				System.out.print(moveBase.get(i).get(j).printPossibilities());
+			}
+			System.out.println(" ]");
+		}
 	}
 	
 	public void printSpecificModifier()

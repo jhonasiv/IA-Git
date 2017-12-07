@@ -19,7 +19,6 @@ public class Main
 		while (true)
 		{
 			scanner.next();
-			System.out.println("loop");
 			human.act();
 			
 		}

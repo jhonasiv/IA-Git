@@ -25,6 +25,7 @@ public class Inventory
 	
 	public class InventoryInfo
 	{
+		
 		public InventoryInfo(Items item)
 		{
 			this.item = item;
@@ -38,16 +39,12 @@ public class Inventory
 		
 		public String toString()
 		{
-			StringBuilder string = new StringBuilder();
+			String string = new String();
 			if(possession)
 			{
-				string.append("Possui " + number + " de " + item.name);
+				string = number + " de " + item.name;
 			}
-			else
-			{
-				string.append("Nao possui nenhum(a) " + item.name);
-			}
-			return string.toString();
+			return string;
 		}
 	}
 	
@@ -66,6 +63,7 @@ public class Inventory
 	
 	public ArrayList<InventoryInfo> check()
 	{
+		inventory = new ArrayList<InventoryInfo>();
 		InventoryInfo info = new InventoryInfo(arrow);
 		inventory.add(info);
 		info = new InventoryInfo(bow);
@@ -129,11 +127,22 @@ public class Inventory
 		}
 	}
 	
+	private void guaranteeUse()
+	{
+		if(inventory.get(6).possession)
+		{
+			torch.effect();
+		}
+	}
+	
 	public void print()
 	{
-		for(int i = 0; i < inventory.size(); i++)
+		for (int i = 0; i < inventory.size(); i++)
 		{
-			System.out.println(inventory.get(i).toString());
+			if(inventory.get(i).possession)
+			{
+				System.out.println(inventory.get(i).toString());
+			}
 		}
 	}
 	

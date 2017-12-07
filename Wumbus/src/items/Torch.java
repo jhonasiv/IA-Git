@@ -14,17 +14,26 @@ public class Torch extends Items
 	
 	private int numberOf = 0;
 	private int durability = 2;
+	private boolean using = false;
 	
 	public void effect()
 	{
 		if(possession)
 		{
 			human.setVisao(1);
-			wearOut();
+			using = true;
+			if(using)
+			{
+				wearOut();
+			}
 		}
 		if(durability == 0)
 		{
-			possession = false;
+			numberOf--;
+			if(numberOf == 0)
+			{
+				possession = false;
+			}
 			human.setVisao(0);
 		}
 	}
