@@ -49,7 +49,7 @@ public class Creature
 	
 	protected int visao = 0;
 	protected Point posicao = new Point();
-	protected boolean alive = true;
+	public boolean alive = true;
 	protected double speed = 1;
 	
 	// \TODO: no futuro será private

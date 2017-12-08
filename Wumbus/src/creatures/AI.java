@@ -4,23 +4,15 @@ package creatures;
 import java.awt.Point;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 
 import creatures.Creature.Knowledge;
-import creatures.Human.Actions;
 import creatures.Human.Possibility;
 import items.Inventory;
 import items.Inventory.InventoryInfo;
 import board.*;
 
-//TODO: preciso implementar sensa�oes de brisa, fedor etc
-// 		arrumar aura de fogo e torre se mantendo depois de serem usados
 public class AI
 {
 	

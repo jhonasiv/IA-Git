@@ -48,9 +48,7 @@ public class Human extends Creature
 		inventory.add(Item.BOW, 1);
 		inventory.add(Item.ARROW, 1);
 		inventory.add(Item.PICKAXE, 1);
-		// inventory.add(Item.MAP, 1);
 		inventory.check();
-		// inventory.print();
 		percepcao();
 		ai = new AI(this, board, inventory);
 	}

@@ -16,7 +16,7 @@ public class Main
 		Human human = new Human(board, monster);
 		monster.getHumanObject(human);
 		board.printBoard();
-		while (true)
+		while (human.alive)
 		{
 			scanner.next();
 			human.act();

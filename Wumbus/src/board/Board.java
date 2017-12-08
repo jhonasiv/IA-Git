@@ -8,7 +8,6 @@ import java.util.List;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 
-//TODO: Fix atalhos, nem todos estao corretamente conectados
 public class Board
 {
 	
@@ -28,6 +27,13 @@ public class Board
 		public boolean equals(Point pos)
 		{
 			return(pos.equals(entrada));
+		}
+		
+		public String toString()
+		{
+			String string = new String();
+			string = "Comeca em " + entrada.x + ", " + entrada.y + "\tTermina em " + saida.x + ", " + saida.y;
+			return string;
 		}
 	}
 	
@@ -54,8 +60,6 @@ public class Board
 	
 	private void generateBoard()
 	{
-		// /TODO: nova estrategia!
-		// /TODO: Fazer primeiro os obstaculos, depois se coloca os sentidos!
 		StringBuilder result = new StringBuilder();
 		StringBuilder resultTmp = new StringBuilder();
 		
@@ -141,9 +145,10 @@ public class Board
 			ManageAtalhos connect = new ManageAtalhos();
 						
 			connect.entrada = atalhos.get(i);
-			connect.saida = atalhos.get(i + 1);
+			connect.saida = atalhos.get(i+1);
 			connections.add(connect);
 			
+			connect = new ManageAtalhos();
 			connect.entrada = atalhos.get(i + 1);
 			connect.saida = atalhos.get(i);
 			connections.add(connect);
@@ -169,8 +174,6 @@ public class Board
 	{
 		int i = ponto.x;
 		int j = ponto.y;
-		// /TODO: fazer sense ser uma StringBuilder e evitar que limpe o campo
-		// do outros Obstaculos com um Sentido( um poco virar brisa)
 		
 		StringBuilder senseLeft = new StringBuilder("");
 		StringBuilder senseRight = new StringBuilder("");
@@ -261,8 +264,6 @@ public class Board
 	{
 		int i = ponto.x;
 		int j = ponto.y;
-		// /TODO: fazer sense ser uma StringBuilder e evitar que limpe o campo
-		// do outros Obstaculos com um Sentido( um poco virar brisa)
 		
 		StringBuilder senseLeft = new StringBuilder("");
 		StringBuilder senseRight = new StringBuilder("");
@@ -421,12 +422,14 @@ public class Board
 		{
 			System.out.println(i + "\t" + this.board.get(i));
 		}
-		
-//		System.out.println("UNMOVABLE = ");
-//		for (int i = 0; i < this.unmovablesBoard.size(); i++)
-//		{
-//			System.out.println(this.unmovablesBoard.get(i));
-//		}
+	}
+	
+	public void printAtalhos()
+	{
+		for(int i = 0; i < connections.size(); i++)
+		{
+			System.out.println(connections.get(i).toString());
+		}
 	}
 	
 	public Point getHuman()
