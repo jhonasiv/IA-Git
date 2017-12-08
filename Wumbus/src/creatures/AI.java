@@ -479,6 +479,10 @@ public class AI
 		
 		public void changeProbability(Entity ent, double probability)
 		{
+			if(probability == 0)
+			{
+				safe = true;
+			}
 			if(!safe)
 			{
 				safe = true;
@@ -686,146 +690,41 @@ public class AI
 			boolean pocoPossibility = false;
 			boolean ouroPossibility = false;
 			boolean monstroPossibility = false;
-					
+			
 			double probability = 0;
 			int[] possiblePlaces = { 0, 0, 0 };
 			for (int n = 0; n < base.get(i).info.length(); n++)
 			{
-				if(base.get(i).info.charAt(n) == 'b')
-				{
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x - 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x + 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y - 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y + 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, 1);
-					}
-				}
-				else if(base.get(i).info.charAt(n) == 'f')
-				{
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x - 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x + 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y - 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y + 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, 1);
-					}
-				}
-				else if(base.get(i).info.charAt(n) == 'l')
-				{
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x - 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x + 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y - 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, 1);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y + 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, 1);
-					}
-				}
+				setAllProbabilities(i, 1);
 				
 				local = new Point(base.get(i).local);
 				local.setLocation(local.x - 1, local.y);
 				for (int p = 0; p < possiblePlaces.length; p++)
 				{
 					possiblePlaces[p] = 0;
-					if(board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0 || !board.validPoint(local))
+					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local))
 					{
-						if(p == 0 && base.get(i).info.charAt(n) == 'b')
-						{
-							System.out.println(possiblePlaces[p]);
-						}
 						possiblePlaces[p]++;
 					}
 					
 					local = new Point(base.get(i).local);
 					local.setLocation(local.x + 1, local.y);
-					if(board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0 || !board.validPoint(local))
+					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local))
 					{
-						if(p == 0 && base.get(i).info.charAt(n) == 'b')
-						{
-							System.out.println(possiblePlaces[p]);
-						}
 						possiblePlaces[p]++;
 					}
 					
 					local = new Point(base.get(i).local);
 					local.setLocation(local.x, local.y - 1);
-					if(board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0 || !board.validPoint(local))
+					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local))
 					{
-						if(p == 0 && base.get(i).info.charAt(n) == 'b')
-						{
-							System.out.println(possiblePlaces[p]);
-						}
 						possiblePlaces[p]++;
 					}
 					
 					local = new Point(base.get(i).local);
 					local.setLocation(local.x, local.y + 1);
-					if(board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0 || !board.validPoint(local))
+					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local))
 					{
-						if(p == 0 && base.get(i).info.charAt(n) == 'b')
-						{
-							System.out.println(possiblePlaces[p]);
-						}
 						possiblePlaces[p]++;
 					}
 				}
@@ -842,33 +741,7 @@ public class AI
 					{
 						probability = 0;
 					}
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x - 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x + 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y - 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y + 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, probability);
-					}
+					setSpecificProbabilities(Entity.POCO, i, probability);
 				}
 				else if(base.get(i).info.charAt(n) == 'f')
 				{
@@ -882,33 +755,7 @@ public class AI
 						probability = 0;
 					}
 					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x - 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x + 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y - 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y + 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, probability);
-					}
+					setSpecificProbabilities(Entity.MONSTRO, i, probability);
 				}
 				else if(base.get(i).info.charAt(n) == 'l')
 				{
@@ -922,124 +769,20 @@ public class AI
 						probability = 0;
 					}
 					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x - 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x + 1, local.y);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y - 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, probability);
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y + 1);
-					if(board.validPoint(local))
-					{
-						moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, probability);
-					}
+					setSpecificProbabilities(Entity.OURO, i, probability);
 				}
 			}
 			if(!pocoPossibility)
 			{
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x - 1, local.y);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x + 1, local.y);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x, local.y - 1);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x, local.y + 1);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, 0);
-				}
+				setSpecificProbabilities(Entity.POCO, i, 0);
 			}
 			if(!monstroPossibility)
 			{
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x - 1, local.y);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x + 1, local.y);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x, local.y - 1);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x, local.y + 1);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, 0);
-				}
+				setSpecificProbabilities(Entity.MONSTRO, i, 0);
 			}
 			if(!ouroPossibility)
 			{
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x - 1, local.y);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x + 1, local.y);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x, local.y - 1);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, 0);
-				}
-				
-				local = new Point(base.get(i).local);
-				local.setLocation(local.x, local.y + 1);
-				if(board.validPoint(local))
-				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, 0);
-				}
+				setSpecificProbabilities(Entity.OURO, i, 0);
 			}
 		}
 		for (int i = 0; i < moveBase.size(); i++)
@@ -1052,6 +795,204 @@ public class AI
 				}
 			}
 		}
+	}
+	
+	private void setAllProbabilities(int element, double val)
+	{
+		Point local = new Point();
+		for (int n = 0; n < base.get(element).info.length(); n++)
+		{
+			if(base.get(element).info.charAt(n) == 'b')
+			{
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x - 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x + 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y - 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y + 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+				}
+			}
+			else if(base.get(element).info.charAt(n) == 'f')
+			{
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x - 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x + 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y - 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y + 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+				}
+			}
+			else if(base.get(element).info.charAt(n) == 'l')
+			{
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x - 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x + 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y - 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y + 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+				}
+			}
+		}
+		
+	}
+	
+	private void setSpecificProbabilities(Entity ent, int element, double val)
+	{
+		Point local = new Point();
+		for (int n = 0; n < base.get(element).info.length(); n++)
+		{
+			if(ent == Entity.POCO)
+			{
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x - 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x + 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y - 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y + 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+				}
+			}
+			else if(ent == Entity.MONSTRO)
+			{
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x - 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x + 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y - 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y + 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+				}
+			}
+			else if(ent == Entity.OURO)
+			{
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x - 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x + 1, local.y);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y - 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+				}
+				
+				local = new Point(base.get(element).local);
+				local.setLocation(local.x, local.y + 1);
+				if(board.validPoint(local))
+				{
+					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+				}
+			}
+		}
+		
 	}
 	
 	public void printMoveBase()

@@ -406,6 +406,7 @@ public class Human extends Creature
 	
 	private void enterShortcut()
 	{
+		percepcao();
 		for (int n = 0; n < dungeon.getLocal(posicao).length(); n++)
 		{
 			if(dungeon.getLocal(posicao).charAt(n) == 'A')
