@@ -465,7 +465,7 @@ public class AI
 			}
 			if(visited)
 			{
-				heuristic = -Math.abs(heuristic) - numVisits;
+				heuristic = -Math.abs(heuristic) - 2*numVisits;
 			}
 		}
 		
@@ -479,10 +479,6 @@ public class AI
 		
 		public void changeProbability(Entity ent, double probability)
 		{
-			if(probability == 0)
-			{
-				safe = true;
-			}
 			if(!safe)
 			{
 				safe = true;
@@ -490,7 +486,6 @@ public class AI
 				{
 					if(possibleEntities.get(i).entity == ent)
 					{
-						System.out.println("setando " + probability);
 						possibleEntities.get(i).setProbability(probability);
 					}
 					if(possibleEntities.get(i).getProbability() != 0)
@@ -731,11 +726,9 @@ public class AI
 				if(base.get(i).info.charAt(n) == 'b')
 				{
 					pocoPossibility = true;
-					System.out.println("Possible Place = " + possiblePlaces[0]);
 					if(possiblePlaces[0] != 4)
 					{
 						probability = (1 / (4 - (double) possiblePlaces[0]));
-						System.out.println("PROBABILITY = " + probability);
 					}
 					else
 					{

@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
+
+//TODO: Fix atalhos, nem todos estao corretamente conectados
 public class Board
 {
 	
