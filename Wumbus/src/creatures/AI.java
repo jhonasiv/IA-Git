@@ -101,7 +101,8 @@ public class AI
 		public List<ProbEntity> possibleEntities = new ArrayList<ProbEntity>();
 		private boolean visited = false;
 		private boolean safe = false;
-		private int numVisits = 0;
+		private boolean unsafeLock = false;
+		private int numVisits = -1;
 		DecimalFormat numberFormat = new DecimalFormat("#.00");
 		
 		private double towerModifier = 0;
@@ -451,13 +452,16 @@ public class AI
 			getModifier();
 			
 			heuristic = (int) (distModifier + infoValue);
-			for (int i = 0; i < possibleEntities.size(); i++)
+			if(!visited)
 			{
-				heuristic += (int) (possibleEntities.get(i).getProbability() * possibleEntities.get(i).value);
+				for (int i = 0; i < possibleEntities.size(); i++)
+				{
+					heuristic += (int) (possibleEntities.get(i).getProbability() * possibleEntities.get(i).value);
+				}
 			}
 			if(visited)
 			{
-				heuristic = -Math.abs(heuristic) - 2*numVisits;
+				heuristic = -Math.abs(heuristic) - (int) (1.5 * numVisits);
 			}
 		}
 		
@@ -469,9 +473,24 @@ public class AI
 			possibleEntities.add(link);
 		}
 		
-		public void changeProbability(Entity ent, double probability)
+		public void presetProbability(Entity ent, double probability)
 		{
 			if(!safe)
+			{
+				for (int i = 0; i < possibleEntities.size(); i++)
+				{
+					if(possibleEntities.get(i).entity == ent)
+					{
+						possibleEntities.get(i).setProbability(probability);
+					}
+				}
+			}
+			
+		}
+		
+		public void changeProbability(Entity ent, double probability)
+		{
+			if(!safe && !unsafeLock)
 			{
 				safe = true;
 				for (int i = 0; i < possibleEntities.size(); i++)
@@ -486,6 +505,39 @@ public class AI
 					}
 				}
 			}
+			if(probability == 1)
+			{
+				unsafeLock = true;
+				checkProbability();
+			}
+		}
+		
+		public void checkProbability()
+		{
+			for (int i = 0; i < possibleEntities.size(); i++)
+			{
+				if(unsafeLock && possibleEntities.get(i).probability == 1)
+				{
+					baseAddition(possibleEntities.get(i).entity);
+				}
+			}
+		}
+		
+		private void baseAddition(Entity ent)
+		{
+			if(ent == Entity.POCO)
+			{
+				human.addToBase(local);
+			}
+			else if(ent == Entity.MONSTRO)
+			{
+				human.addToBase(local);
+			}
+			else if(ent == Entity.OURO)
+			{
+				human.addToBase(local);
+			}
+			
 		}
 		
 		public void visit()
@@ -547,6 +599,9 @@ public class AI
 	private class ShootChoice
 	{
 		
+		private Point local = new Point();
+		private String info = new String();
+		private int heuristic = 0;
 	}
 	
 	private Human human;
@@ -682,7 +737,7 @@ public class AI
 			int[] possiblePlaces = { 0, 0, 0 };
 			for (int n = 0; n < base.get(i).info.length(); n++)
 			{
-				setAllProbabilities(i, 1);
+				presetAllProbabilities(i, 1);
 				
 				local = new Point(base.get(i).local);
 				local.setLocation(local.x - 1, local.y);
@@ -770,10 +825,12 @@ public class AI
 				setSpecificProbabilities(Entity.OURO, i, 0);
 			}
 		}
+		
 		for (int i = 0; i < moveBase.size(); i++)
 		{
 			for (int j = 0; j < moveBase.get(i).size(); j++)
 			{
+				// moveBase.get(i).get(j).checkProbability();
 				if(moveBase.get(i).get(j).getInfo().equals(""))
 				{
 					moveBase.get(i).get(j).setInfo("");
@@ -782,7 +839,7 @@ public class AI
 		}
 	}
 	
-	private void setAllProbabilities(int element, double val)
+	private void presetAllProbabilities(int element, double val)
 	{
 		Point local = new Point();
 		for (int n = 0; n < base.get(element).info.length(); n++)
@@ -793,28 +850,28 @@ public class AI
 				local.setLocation(local.x - 1, local.y);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.POCO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x + 1, local.y);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.POCO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x, local.y - 1);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.POCO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x, local.y + 1);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.POCO, val);
 				}
 			}
 			else if(base.get(element).info.charAt(n) == 'f')
@@ -823,28 +880,28 @@ public class AI
 				local.setLocation(local.x - 1, local.y);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.MONSTRO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x + 1, local.y);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.MONSTRO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x, local.y - 1);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.MONSTRO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x, local.y + 1);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.MONSTRO, val);
 				}
 			}
 			else if(base.get(element).info.charAt(n) == 'l')
@@ -853,28 +910,28 @@ public class AI
 				local.setLocation(local.x - 1, local.y);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.OURO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x + 1, local.y);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.OURO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x, local.y - 1);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.OURO, val);
 				}
 				
 				local = new Point(base.get(element).local);
 				local.setLocation(local.x, local.y + 1);
 				if(board.validPoint(local))
 				{
-					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
+					moveBase.get(local.x).get(local.y).presetProbability(Entity.OURO, val);
 				}
 			}
 		}
@@ -892,6 +949,7 @@ public class AI
 				local.setLocation(local.x - 1, local.y);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
 				}
 				
@@ -899,6 +957,7 @@ public class AI
 				local.setLocation(local.x + 1, local.y);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
 				}
 				
@@ -906,6 +965,7 @@ public class AI
 				local.setLocation(local.x, local.y - 1);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
 				}
 				
@@ -913,6 +973,7 @@ public class AI
 				local.setLocation(local.x, local.y + 1);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.POCO, val);
 				}
 			}
@@ -922,6 +983,7 @@ public class AI
 				local.setLocation(local.x - 1, local.y);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
 				}
 				
@@ -929,6 +991,7 @@ public class AI
 				local.setLocation(local.x + 1, local.y);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
 				}
 				
@@ -936,6 +999,7 @@ public class AI
 				local.setLocation(local.x, local.y - 1);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
 				}
 				
@@ -943,6 +1007,7 @@ public class AI
 				local.setLocation(local.x, local.y + 1);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.MONSTRO, val);
 				}
 			}
@@ -952,6 +1017,7 @@ public class AI
 				local.setLocation(local.x - 1, local.y);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
 				}
 				
@@ -959,6 +1025,7 @@ public class AI
 				local.setLocation(local.x + 1, local.y);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
 				}
 				
@@ -966,6 +1033,7 @@ public class AI
 				local.setLocation(local.x, local.y - 1);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
 				}
 				
@@ -973,6 +1041,7 @@ public class AI
 				local.setLocation(local.x, local.y + 1);
 				if(board.validPoint(local))
 				{
+					
 					moveBase.get(local.x).get(local.y).changeProbability(Entity.OURO, val);
 				}
 			}

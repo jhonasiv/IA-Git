@@ -453,7 +453,7 @@ public class Board
 		localValue.append(board.get(local.x).get(local.y));
 		for(int n = 0; n < localValue.length(); n++)
 		{
-			if(localValue.charAt(n) == 'b' || localValue.charAt(n) == 'l' || localValue.charAt(n) == 'f' || localValue.charAt(n) == 'D')
+			if(localValue.charAt(n) == 'b' || localValue.charAt(n) == 'l' || localValue.charAt(n) == 'f' || localValue.charAt(n) == 'D' || localValue.charAt(n) == '-')
 			{
 				localValue.deleteCharAt(n);
 			}

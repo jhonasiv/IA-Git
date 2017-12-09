@@ -26,13 +26,22 @@ public class Fire_Arrow extends Arrow
 		{
 			Point inicial = new Point(human.getPosicao());
 			Point trajetoria = new Point();
-			for (int trajeto = 1; trajeto <= alcance; trajeto++)
+			String info = new String();
+			OUTER: for (int trajeto = 1; trajeto <= alcance; trajeto++)
 			{
 				if (dir == Direction.CIMA)
 				{
 					trajetoria = new Point(inicial.x - trajeto, inicial.y);
 					if (board.validPoint(new Point(trajetoria)))
 					{
+						info = board.getLocal(trajetoria);
+						for (int n = 0; n < info.length(); n++)
+						{
+							if(info.charAt(n) == 'R')
+							{
+								break OUTER;
+							}
+						}
 						human.gatherInfo(trajetoria, 0);
 						if (trajetoria == monster.getPosicao())
 						{
@@ -45,6 +54,14 @@ public class Fire_Arrow extends Arrow
 					trajetoria = new Point(inicial.x + trajeto, inicial.y);
 					if (board.validPoint(new Point(trajetoria)))
 					{
+						info = board.getLocal(trajetoria);
+						for (int n = 0; n < info.length(); n++)
+						{
+							if(info.charAt(n) == 'R')
+							{
+								break OUTER;
+							}
+						}
 						human.gatherInfo(trajetoria, 0);
 						if (trajetoria == monster.getPosicao())
 						{
@@ -57,6 +74,14 @@ public class Fire_Arrow extends Arrow
 					trajetoria = new Point(inicial.x, inicial.y - trajeto);
 					if (board.validPoint(new Point(trajetoria)))
 					{
+						info = board.getLocal(trajetoria);
+						for (int n = 0; n < info.length(); n++)
+						{
+							if(info.charAt(n) == 'R')
+							{
+								break OUTER;
+							}
+						}
 						human.gatherInfo(trajetoria, 0);
 						if (trajetoria == monster.getPosicao())
 						{
@@ -69,6 +94,14 @@ public class Fire_Arrow extends Arrow
 					trajetoria = new Point(inicial.x, inicial.y + trajeto);
 					if (board.validPoint(new Point(trajetoria)))
 					{
+						info = board.getLocal(trajetoria);
+						for (int n = 0; n < info.length(); n++)
+						{
+							if(info.charAt(n) == 'R')
+							{
+								break OUTER;
+							}
+						}
 						human.gatherInfo(trajetoria, 0);
 						if (trajetoria == monster.getPosicao())
 						{

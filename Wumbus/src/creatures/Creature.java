@@ -92,6 +92,33 @@ public class Creature
 		filterBase();
 	}
 	
+	public void addToBase(Point local)
+	{
+		System.out.println("bugou");
+		boolean exists = true;
+		int element = 0;
+		for (int i = 0; i < base.size(); i++)
+		{
+			exists = base.get(i).sameLocation(local);
+			if(exists)
+			{
+				element = i;
+			}
+		}
+		if(exists)
+		{
+			base.get(element).info = dungeon.getLocal(local);
+		}
+		else
+		{
+			Knowledge knowledge = new Knowledge();
+			knowledge.info = dungeon.getLocal(local);
+			knowledge.local = local;
+			base.add(knowledge);
+		}
+		filterBase();
+	}
+	
 	private void filterBase()
 	{
 		for (int i = 0; i < base.size(); i++)
@@ -107,6 +134,31 @@ public class Creature
 					}
 				}
 			}
+		}
+		for(int i = 0; i < base.size(); i++)
+		{
+			StringBuilder info = new StringBuilder();
+			info.append(base.get(i).info);
+			for(int n = 0; n < info.length(); n++)
+			{
+				int repeatition = 0;
+				for (int j = 0; j < info.length(); j++)
+				{
+					if(n != j)
+					{
+						if(info.charAt(n) == info.charAt(j))
+						{
+							repeatition++;
+							if(repeatition > 0)
+							{
+								info.deleteCharAt(j);
+								j--;
+							}
+						}
+					}
+				}
+			}
+			base.get(i).info = info.toString();
 		}
 	}
 	
@@ -164,18 +216,44 @@ public class Creature
 	{
 		if(dungeon.validPoint(local))
 		{
-			Knowledge sabedoria = new Knowledge();
-			sabedoria.local = local;
-			if(quadrante == 0)
+			boolean exists = false;
+			int element = 0;
+			for (int i = 0; i < base.size(); i++)
 			{
-				sabedoria.info = dungeon.getLocal(local);
+				exists = base.get(i).sameLocation(local);
+				if(exists)
+				{
+					element = i;
+					break;
+				}
+			}
+			if(!exists)
+			{
+				Knowledge sabedoria = new Knowledge();
+				sabedoria.local = local;
+				if(quadrante == 0)
+				{
+					sabedoria.info = dungeon.getLocal(local);
+				}
+				else
+				{
+					sabedoria.info = dungeon.getLocalObstacle(local);
+				}
+				base.add(sabedoria);
 			}
 			else
 			{
-				sabedoria.info = dungeon.getLocalObstacle(local);
+				if(quadrante == 0)
+				{
+					base.get(element).info += dungeon.getLocal(local);
+				}
+				else
+				{
+					base.get(element).info += dungeon.getLocalObstacle(local);
+				}
 			}
-			base.add(sabedoria);
 		}
+		filterBase();
 	}
 	
 	public void gatherDungeon()
@@ -203,6 +281,7 @@ public class Creature
 	
 	public void die()
 	{
+		System.out.println("Morreu");
 		alive = false;
 	}
 	

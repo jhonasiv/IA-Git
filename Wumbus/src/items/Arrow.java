@@ -25,38 +25,83 @@ public class Arrow extends Items
 		{
 			Point inicial = new Point(human.getPosicao());
 			Point trajetoria = new Point();
-			for (int trajeto = 1; trajeto <= alcance; trajeto++)
+			String info = new String();
+			OUTER: for (int trajeto = 1; trajeto <= alcance; trajeto++)
 			{
 				if(dir == Direction.CIMA)
 				{
 					trajetoria = new Point(inicial.x - trajeto, inicial.y);
-					if(trajetoria == monster.getPosicao())
+					if(board.validPoint(new Point(trajetoria)))
 					{
-						monster.die();
+						info = board.getLocal(trajetoria);
+						for (int n = 0; n < info.length(); n++)
+						{
+							if(info.charAt(n) == 'R')
+							{
+								break OUTER;
+							}
+						}
+						if(trajetoria == monster.getPosicao())
+						{
+							monster.die();
+						}
 					}
 				}
 				else if(dir == Direction.BAIXO)
 				{
 					trajetoria = new Point(inicial.x + trajeto, inicial.y);
-					if(trajetoria == monster.getPosicao())
+					if(board.validPoint(new Point(trajetoria)))
 					{
-						monster.die();
+						info = board.getLocal(trajetoria);
+						for (int n = 0; n < info.length(); n++)
+						{
+							if(info.charAt(n) == 'R')
+							{
+								break OUTER;
+							}
+						}
+						if(trajetoria == monster.getPosicao())
+						{
+							monster.die();
+						}
 					}
 				}
 				else if(dir == Direction.ESQUERDA)
 				{
 					trajetoria = new Point(inicial.x, inicial.y - trajeto);
-					if(trajetoria == monster.getPosicao())
+					if(board.validPoint(new Point(trajetoria)))
 					{
-						monster.die();
+						info = board.getLocal(trajetoria);
+						for (int n = 0; n < info.length(); n++)
+						{
+							if(info.charAt(n) == 'R')
+							{
+								break OUTER;
+							}
+						}
+						if(trajetoria == monster.getPosicao())
+						{
+							monster.die();
+						}
 					}
 				}
 				else if(dir == Direction.DIREITA)
 				{
 					trajetoria = new Point(inicial.x, inicial.y + trajeto);
-					if(trajetoria == monster.getPosicao())
+					if(board.validPoint(new Point(trajetoria)))
 					{
-						monster.die();
+						info = board.getLocal(trajetoria);
+						for (int n = 0; n < info.length(); n++)
+						{
+							if(info.charAt(n) == 'R')
+							{
+								break OUTER;
+							}
+						}
+						if(trajetoria == monster.getPosicao())
+						{
+							monster.die();
+						}
 					}
 				}
 			}
@@ -84,6 +129,11 @@ public class Arrow extends Items
 	public int getNumberOf()
 	{
 		return numberOf;
+	}
+	
+	public int getRange()
+	{
+		return alcance;
 	}
 	
 }
