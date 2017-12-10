@@ -207,21 +207,7 @@ public class AI
 					possibleEntities.get(1).setProbability(0);
 					possibleEntities.get(2).setProbability(0);
 					safe = true;
-					if(inventoryInfo.get(5).possession)
-					{
-						if(inventoryInfo.get(5).number > 1)
-						{
-							infoValue += 5;
-						}
-						else
-						{
-							infoValue += -5;
-						}
-					}
-					else
-					{
-						infoValue += -150;
-					}
+					infoValue += -200;
 				}
 				else if(info.charAt(i) == 'B')
 				{
@@ -385,7 +371,7 @@ public class AI
 				exitDist = Math.abs(local.x - knownExit.x) + Math.abs(local.y - knownExit.y);
 				if(exitDist != 0)
 				{
-					exitModifier = (double) (exitWeight / (exitDist + 1));
+					exitModifier = (double) (exitWeight / (exitDist + .2));
 				}
 			}
 			
@@ -711,22 +697,17 @@ public class AI
 			List<Point> scoutingPoints = new ArrayList<Point>();
 			Point auxiliar = new Point();
 			boolean hasRock = false;
-			boolean isKnown = false;
-			int downNews = 0;
-			int upNews = 0;
-			int leftNews = 0;
-			int rightNews = 0;
 			int[] blocksInDirection = new int[4];
 			for (int alcance = 1; alcance <= 3; alcance++)
 			{
-				auxiliar = new Point(human.getPosicao().x - alcance, human.getPosicao().y);
+				auxiliar = new Point(local.x - alcance, local.y);
 				if(board.validPoint(auxiliar))
 				{
 					for (int i = 0; i < base.size(); i++)
 					{
 						if(base.get(i).local == auxiliar)
 						{
-							for (int x = 0; (auxiliar.x + x) < human.getPosicao().x; x++)
+							for (int x = 0; (auxiliar.x + x) < local.x; x++)
 							{
 								if((auxiliar.x + x) == base.get(i).local.x && base.get(i).info.contains("R"))
 								{
@@ -741,7 +722,7 @@ public class AI
 						scoutingPoints.add(auxiliar);
 					}
 				}
-				auxiliar = new Point(human.getPosicao().x + alcance, human.getPosicao().y);
+				auxiliar = new Point(local.x + alcance, local.y);
 				hasRock = false;
 				if(board.validPoint(auxiliar))
 				{
@@ -749,8 +730,7 @@ public class AI
 					{
 						if(base.get(i).local == auxiliar)
 						{
-							isKnown = true;
-							for (int x = 0; (auxiliar.x - x) > human.getPosicao().x; x--)
+							for (int x = 0; (auxiliar.x - x) > local.x; x--)
 							{
 								if((auxiliar.x - x) == base.get(i).local.x && base.get(i).info.contains("R"))
 								{
@@ -765,14 +745,14 @@ public class AI
 						scoutingPoints.add(auxiliar);
 					}
 				}
-				auxiliar = new Point(human.getPosicao().x, human.getPosicao().y - alcance);
+				auxiliar = new Point(local.x, local.y - alcance);
 				if(board.validPoint(auxiliar))
 				{
 					for (int i = 0; i < base.size(); i++)
 					{
 						if(base.get(i).local == auxiliar)
 						{
-							for (int y = 0; (auxiliar.y + y) < human.getPosicao().y; y++)
+							for (int y = 0; (auxiliar.y + y) < local.y; y++)
 							{
 								if((auxiliar.y + y) == base.get(i).local.y && base.get(i).info.contains("R"))
 								{
@@ -787,14 +767,14 @@ public class AI
 						scoutingPoints.add(auxiliar);
 					}
 				}
-				auxiliar = new Point(human.getPosicao().x, human.getPosicao().y + alcance);
+				auxiliar = new Point(local.x, local.y + alcance);
 				if(board.validPoint(auxiliar))
 				{
 					for (int i = 0; i < base.size(); i++)
 					{
 						if(base.get(i).local == auxiliar)
 						{
-							for (int y = 0; (auxiliar.y - y) > human.getPosicao().y; y--)
+							for (int y = 0; (auxiliar.y - y) > local.y; y--)
 							{
 								if((auxiliar.y - y) == base.get(i).local.y && base.get(i).info.contains("R"))
 								{
@@ -844,7 +824,7 @@ public class AI
 				if(distToShootingPoint == 0)
 				{
 					directionCalc();
-					moveBase.get(local.x).get(local.y).heuristic += 100;
+					moveBase.get(local.x).get(local.y).heuristic += 50;
 					if(inventory.check().get(2).possession)
 					{
 						item = "Fire_Arrow";
@@ -965,6 +945,51 @@ public class AI
 				return "H";
 			}
 			return Integer.toString(Collections.max(directionHeuristic));
+			// return Integer.toString(directionHeuristic.get(0));
+		}
+	}
+	
+	private class MineChoice
+	{
+		
+		private void initialize(Point local)
+		{
+			info = "";
+			this.local = local;
+		}
+		
+		private String info = new String();
+		private Point local = new Point();
+		private int heuristic = -100;
+		
+		public void update(String information)
+		{
+			this.info = information;
+			calculate();
+		}
+		
+		private void calculate()
+		{
+			if(info.contains("R"))
+			{
+				if(inventory.check().get(5).possession && inventory.check().get(5).number == 1)
+				{
+					heuristic = -8;
+				}
+				else if(inventory.check().get(5).number > 1)
+				{
+					heuristic = 10;
+				}
+				else
+				{
+					heuristic = -100;
+				}
+			}
+		}
+		
+		public int getHeuristic()
+		{
+			return heuristic;
 		}
 	}
 	
@@ -975,28 +1000,34 @@ public class AI
 	private List<Knowledge> base = new ArrayList<Knowledge>();
 	private List<ArrayList<MovementChoice>> moveBase = new ArrayList<ArrayList<MovementChoice>>();
 	private List<ArrayList<ShootChoice>> shootBase = new ArrayList<ArrayList<ShootChoice>>();
+	private List<ArrayList<MineChoice>> mineBase = new ArrayList<ArrayList<MineChoice>>();
 	private List<InventoryInfo> inventoryInfo = new ArrayList<InventoryInfo>();
 	
 	private void generateMoveBase()
 	{
 		ArrayList<MovementChoice> tempMoveBase = new ArrayList<MovementChoice>();
 		ArrayList<ShootChoice> tempShootBase = new ArrayList<ShootChoice>();
+		ArrayList<MineChoice> tempMineBase = new ArrayList<MineChoice>();
 		List<ArrayList<String>> unmovables = board.getUnmovablesBoard();
 		for (int i = 0; i < unmovables.size(); i++)
 		{
 			tempMoveBase = new ArrayList<MovementChoice>();
 			tempShootBase = new ArrayList<ShootChoice>();
+			tempMineBase = new ArrayList<MineChoice>();
 			for (int j = 0; j < unmovables.get(i).size(); j++)
 			{
 				MovementChoice movementChoice = new MovementChoice();
 				ShootChoice shootChoice = new ShootChoice();
+				MineChoice mineChoice = new MineChoice();
 				shootChoice.local = new Point(i, j);
 				movementChoice.local = new Point(i, j);
 				tempMoveBase.add(movementChoice);
 				tempShootBase.add(shootChoice);
+				tempMineBase.add(mineChoice);
 			}
 			moveBase.add(tempMoveBase);
 			shootBase.add(tempShootBase);
+			mineBase.add(tempMineBase);
 		}
 		for (int i = 0; i < moveBase.size(); i++)
 		{
@@ -1004,6 +1035,7 @@ public class AI
 			{
 				moveBase.get(i).get(j).initialize(new Point(i, j));
 				shootBase.get(i).get(j).initialize(new Point(i, j));
+				mineBase.get(i).get(j).initialize(new Point(i, j));
 				if(moveBase.get(i).get(j).getInfo().equals(""))
 				{
 					moveBase.get(i).get(j).setInfo("");
@@ -1058,7 +1090,7 @@ public class AI
 				case QUEBRAR:
 					if(possibilities.get(i).possible)
 					{
-						heuristics.add(-1000);
+						heuristics.add(mineBase.get(possibilities.get(i).local.x).get(possibilities.get(i).local.y).getHeuristic());
 					}
 					else
 					{
@@ -1098,10 +1130,16 @@ public class AI
 		moveBase.get(human.getPosicao().x).get(human.getPosicao().y).visit();
 		for (int i = 0; i < base.size(); i++)
 		{
-			shootBase.get(base.get(i).local.x).get(base.get(i).local.y).update();
+			mineBase.get(base.get(i).local.x).get(base.get(i).local.y).update(base.get(i).info);
 			moveBase.get(base.get(i).local.x).get(base.get(i).local.y).setInfo(base.get(i).info);
 		}
-		
+		for (int i = 0; i < shootBase.size(); i++)
+		{
+			for (int j = 0; j < shootBase.get(i).size(); j++)
+			{
+				shootBase.get(i).get(j).update();
+			}
+		}
 		for (int i = 0; i < base.size(); i++)
 		{
 			Point local = new Point();
@@ -1111,8 +1149,7 @@ public class AI
 			
 			double probability = 0;
 			int[] possiblePlaces = { 0, 0, 0 };
-			for (int n = 0; n < base.get(i).info.length(); n++)
-			{
+			
 				presetAllProbabilities(i, 1);
 				
 				local = new Point(base.get(i).local);
@@ -1150,7 +1187,7 @@ public class AI
 						possiblePlaces[p]++;
 					}
 				}
-				if(base.get(i).info.charAt(n) == 'b')
+				if(base.get(i).info.contains("b"))
 				{
 					pocoPossibility = true;
 					if(possiblePlaces[0] != 4)
@@ -1163,7 +1200,7 @@ public class AI
 					}
 					setSpecificProbabilities(Entity.POCO, i, probability);
 				}
-				else if(base.get(i).info.charAt(n) == 'f')
+				else if(base.get(i).info.contains("f"))
 				{
 					monstroPossibility = true;
 					if(possiblePlaces[1] != 4)
@@ -1177,7 +1214,7 @@ public class AI
 					
 					setSpecificProbabilities(Entity.MONSTRO, i, probability);
 				}
-				else if(base.get(i).info.charAt(n) == 'l')
+				else if(base.get(i).info.contains("l"))
 				{
 					ouroPossibility = true;
 					if(possiblePlaces[2] != 4)
@@ -1191,7 +1228,7 @@ public class AI
 					
 					setSpecificProbabilities(Entity.OURO, i, probability);
 				}
-			}
+			
 			if(!pocoPossibility)
 			{
 				setSpecificProbabilities(Entity.POCO, i, 0);
@@ -1443,16 +1480,16 @@ public class AI
 					System.out.print("  ");
 				}
 			}
-//			System.out.print("]");
-//			System.out.print("\t [");
-//			for (int j = 0; j < shootBase.get(i).size(); j++)
-//			{
-//				System.out.print(shootBase.get(i).get(j).printHeuristic());
-//				if(j != shootBase.get(i).size() - 1)
-//				{
-//					System.out.print("  ");
-//				}
-//			}
+			System.out.print("]");
+			System.out.print("\t\t [");
+			for (int j = 0; j < shootBase.get(i).size(); j++)
+			{
+				System.out.print(shootBase.get(i).get(j).printHeuristic());
+				if(j != shootBase.get(i).size() - 1)
+				{
+					System.out.print("  ");
+				}
+			}
 			System.out.println("]");
 		}
 		
