@@ -78,6 +78,8 @@ public class Inventory
 		inventory.add(info);
 		info = new InventoryInfo(torch);
 		inventory.add(info);
+		
+		guaranteeUse();
 		return inventory;
 	}
 	

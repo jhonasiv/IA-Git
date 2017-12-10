@@ -59,6 +59,7 @@ public class Human extends Creature
 	private int numMoves = 0;
 	private List<Possibility> possibleActions = new ArrayList<Possibility>();
 	private boolean safety_state_change = false;
+	public boolean free = false;
 	
 	public void act()
 	{
@@ -66,17 +67,18 @@ public class Human extends Creature
 		int movesThisTurn = 0;
 		int appr = 0;
 		int totalMoves = (int)speed + (int)(numMoves/4);
-		while ((movesThisTurn < totalMoves) && alive)
+		while ((movesThisTurn < totalMoves) && alive && !free)
 		{
 			checkPossibilities();
 			percepcao();
 			ai.update();
 //			ai.printSpecificModifier();
-			inventory.print();
+			inventory.check();
 			ai.printPossibilites();
-			dungeon.printBoard();
-			ai.printMoveBase();
 			printBase();
+			ai.printMoveBase();
+			inventory.print();
+			dungeon.printBoard(posicao);
 			
 			System.out.print("Posicao inicial: " + posicao);
 			action = ai.chooseAction();
@@ -104,6 +106,11 @@ public class Human extends Creature
 			if(speed%1 != 0)
 			{
 				numMoves++;
+			}
+			if(posicao.equals(dungeon.getSaida()))
+			{
+				System.out.println("DOBBY IS FREEEEEE!!!!");
+				free = true;
 			}
 		}
 	}
@@ -232,32 +239,60 @@ public class Human extends Creature
 		possib = new Possibility();
 		possib.action = Actions.ATIRAR;
 		possib.direction = Direction.BAIXO;
-		possib.possible = true;
-		possib.local = local;
+		if(inventory.check().get(0).possession || inventory.check().get(2).possession)
+		{
+			possib.possible = true;
+		}
+		else
+		{
+			possib.possible = false;
+		}
+		possib.local = new Point(posicao);
 		possibleActions.add(possib);
 		
 		/// ATIRAR PARA CIMA
 		possib = new Possibility();
 		possib.action = Actions.ATIRAR;
 		possib.direction = Direction.CIMA;
-		possib.possible = true;
-		possib.local = local;
+		if(inventory.check().get(0).possession || inventory.check().get(2).possession)
+		{
+			possib.possible = true;
+		}
+		else
+		{
+			possib.possible = false;
+		}
+		possib.local = new Point(posicao);
 		possibleActions.add(possib);
 		
 		/// ATIRAR PARA ESQUERDA
 		possib = new Possibility();
 		possib.action = Actions.ATIRAR;
 		possib.direction = Direction.ESQUERDA;
-		possib.possible = true;
-		possib.local = local;
+		if(inventory.check().get(0).possession || inventory.check().get(2).possession)
+		{
+			possib.possible = true;
+		}
+		else
+		{
+			possib.possible = false;
+		}
+		possib.local = new Point(posicao);
 		possibleActions.add(possib);
 		
 		/// ATIRAR PARA DIREITA
 		possib = new Possibility();
 		possib.action = Actions.ATIRAR;
 		possib.direction = Direction.DIREITA;
-		possib.possible = true;
-		possib.local = local;
+		if(inventory.check().get(0).possession || inventory.check().get(2).possession)
+		{
+			possib.possible = true;
+		}
+		else
+		{
+			possib.possible = false;
+		}
+		possib.local = new Point(posicao);
 		possibleActions.add(possib);
 		
 		/// QUEBRAR ROCHA ABAIXO

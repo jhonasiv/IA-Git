@@ -16,11 +16,17 @@ public class Main
 		Human human = new Human(board, monster);
 		monster.getHumanObject(human);
 		board.printBoard();
-		while (human.alive)
+		while (human.alive || monster.alive || !human.free)
 		{
-			scanner.next();
+//			scanner.next();
 			human.act();
-			
+			try
+			{
+				Thread.sleep(50);
+			} catch (InterruptedException intrx)
+			{
+				System.out.println(intrx);
+			}
 		}
 		// human.printBase();
 	}

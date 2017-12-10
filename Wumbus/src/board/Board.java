@@ -423,6 +423,27 @@ public class Board
 			System.out.println(i + "\t" + this.board.get(i));
 		}
 	}
+	public void printBoard(Point posicao)
+	{
+		System.out.println("BOARD\n" );
+		List<ArrayList<String>> printBoard = new ArrayList<ArrayList<String>>();
+		for(int i = 0; i < board.size(); i++)
+		{
+			printBoard.add(new ArrayList<String>(board.get(i)));
+		}
+		if(!printBoard.get(posicao.x).get(posicao.y).equals("-"))
+		{
+			printBoard.get(posicao.x).set(posicao.y, board.get(posicao.x).get(posicao.y)+"H");
+		}
+		else
+		{
+			printBoard.get(posicao.x).set(posicao.y, "H");
+		}
+		for (int i = 0; i < this.board.size(); i++)
+		{
+			System.out.println(i + "\t" + printBoard.get(i));
+		}
+	}
 	
 	public void printAtalhos()
 	{
@@ -479,6 +500,11 @@ public class Board
 	public List<Point> getShortcuts()
 	{
 		return rules.getAtalhos();
+	}
+	
+	public Point getSaida()
+	{
+		return rules.getSaida();
 	}
 	
 	public Point getExit(Point entrada)

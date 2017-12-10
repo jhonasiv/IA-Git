@@ -94,7 +94,6 @@ public class Creature
 	
 	public void addToBase(Point local)
 	{
-		System.out.println("bugou");
 		boolean exists = true;
 		int element = 0;
 		for (int i = 0; i < base.size(); i++)

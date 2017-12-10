@@ -1,12 +1,15 @@
 
 package creatures;
 
+import java.awt.Container;
 import java.awt.Point;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import creatures.Creature.Direction;
 import creatures.Creature.Knowledge;
 import creatures.Human.Possibility;
 import items.Inventory;
@@ -33,8 +36,9 @@ public class AI
 	private class MovementChoice
 	{
 		
-		public void initialize()
+		public void initialize(Point local)
 		{
+			this.local = local;
 			addProbability(Entity.POCO, 0);
 			addProbability(Entity.MONSTRO, 0);
 			addProbability(Entity.OURO, 0);
@@ -600,8 +604,337 @@ public class AI
 	{
 		
 		private Point local = new Point();
-		private String info = new String();
+		private Point monsterLocal = new Point();
+		private List<Point> shootingPoints = new ArrayList<Point>();
+		boolean hasMonster = false;
 		private int heuristic = 0;
+		private int distToShootingPoint = 9999;
+		private List<Integer> directionHeuristic = new ArrayList<Integer>();
+		
+		public void initialize(Point local)
+		{
+			this.local = local;
+			heuristic = -100;
+			// BAIXO
+			directionHeuristic.add(-100);
+			// CIMA
+			directionHeuristic.add(-100);
+			// ESQUERDA
+			directionHeuristic.add(-100);
+			// DIREITA
+			directionHeuristic.add(-100);
+		}
+		
+		public void update()
+		{
+			heuristicCalc();
+		}
+		
+		private void distanceCalc()
+		{
+			for (int i = 0; i < base.size(); i++)
+			{
+				if(base.get(i).info.contains("M"))
+				{
+					hasMonster = true;
+					monsterLocal = base.get(i).local;
+					break;
+				}
+			}
+			if(hasMonster)
+			{
+				for (int i = 0; i < shootBase.size(); i++)
+				{
+					for (int j = 0; j < shootBase.get(i).size(); j++)
+					{
+						if(Math.abs(shootBase.get(i).get(j).local.x - monsterLocal.x) <= 3 && !shootBase.get(i).get(j).local.equals(monsterLocal) && shootBase.get(i).get(j).local.y == monsterLocal.y)
+						{
+							shootingPoints.add(new Point(i, j));
+						}
+						else if(Math.abs(shootBase.get(i).get(j).local.y - monsterLocal.y) <= 3 && !shootBase.get(i).get(j).local.equals(monsterLocal) && shootBase.get(i).get(j).local.x == monsterLocal.x)
+						{
+							shootingPoints.add(new Point(i, j));
+						}
+					}
+				}
+				filterShootingPoints();
+				for (int i = 0; i < shootingPoints.size(); i++)
+				{
+					if(Math.abs(local.x - shootingPoints.get(i).x) + Math.abs(local.y - shootingPoints.get(i).y) < distToShootingPoint)
+					{
+						distToShootingPoint = Math.abs(local.x - shootingPoints.get(i).x) + Math.abs(local.y - shootingPoints.get(i).y);
+					}
+				}
+			}
+		}
+		
+		private void directionCalc()
+		{
+			for (int i = 0; i < shootingPoints.size(); i++)
+			{
+				int distX = shootingPoints.get(i).x - local.x;
+				int distY = shootingPoints.get(i).y - local.y;
+				if(distX < 0)
+				{
+					directionHeuristic.set(1,  200);
+				}
+				else if(distX > 0)
+				{
+					directionHeuristic.set(0,  200);
+				}
+				if(distY < 0)
+				{
+					directionHeuristic.set(2,  200);
+				}
+				else if(distY > 0)
+				{
+					directionHeuristic.set(3,  200);
+				}
+			}
+		}
+		
+		private void scoutingCalc()
+		{
+			List<Point> scoutingPoints = new ArrayList<Point>();
+			Point auxiliar = new Point();
+			boolean hasRock = false;
+			int[] blocksInDirection = new int[4];
+			for (int alcance = 1; alcance <= 3; alcance++)
+			{
+				auxiliar = new Point(human.getPosicao().x - alcance, human.getPosicao().y);
+				if(board.validPoint(auxiliar))
+				{
+					for (int i = 0; i < base.size(); i++)
+					{
+						if(base.get(i).local == auxiliar)
+						{
+							for (int x = 0; (auxiliar.x + x) < human.getPosicao().x; x++)
+							{
+								if((auxiliar.x + x) == base.get(i).local.x && base.get(i).info.contains("R"))
+								{
+									hasRock = true;
+									break;
+								}
+							}
+						}
+					}
+					if(!hasRock)
+					{
+						scoutingPoints.add(auxiliar);
+					}
+				}
+				auxiliar = new Point(human.getPosicao().x + alcance, human.getPosicao().y);
+				hasRock = false;
+				if(board.validPoint(auxiliar))
+				{
+					for (int i = 0; i < base.size(); i++)
+					{
+						if(base.get(i).local == auxiliar)
+						{
+							for (int x = 0; (auxiliar.x - x) > human.getPosicao().x; x--)
+							{
+								if((auxiliar.x - x) == base.get(i).local.x && base.get(i).info.contains("R"))
+								{
+									hasRock = true;
+									break;
+								}
+							}
+						}
+					}
+					if(!hasRock)
+					{
+						scoutingPoints.add(auxiliar);
+					}
+				}
+				auxiliar = new Point(human.getPosicao().x, human.getPosicao().y - alcance);
+				if(board.validPoint(auxiliar))
+				{
+					for (int i = 0; i < base.size(); i++)
+					{
+						if(base.get(i).local == auxiliar)
+						{
+							for (int y = 0; (auxiliar.y + y) < human.getPosicao().y; y++)
+							{
+								if((auxiliar.y + y) == base.get(i).local.y && base.get(i).info.contains("R"))
+								{
+									hasRock = true;
+									break;
+								}
+							}
+						}
+					}
+					if(!hasRock)
+					{
+						scoutingPoints.add(auxiliar);
+					}
+				}
+				auxiliar = new Point(human.getPosicao().x, human.getPosicao().y + alcance);
+				if(board.validPoint(auxiliar))
+				{
+					for (int i = 0; i < base.size(); i++)
+					{
+						if(base.get(i).local == auxiliar)
+						{
+							for (int y = 0; (auxiliar.y - y) > human.getPosicao().y; y--)
+							{
+								if((auxiliar.y - y) == base.get(i).local.y && base.get(i).info.contains("R"))
+								{
+									hasRock = true;
+									break;
+								}
+							}
+						}
+					}
+					if(!hasRock)
+					{
+						scoutingPoints.add(auxiliar);
+					}
+				}
+			}
+			for (int i = 0; i < scoutingPoints.size(); i++)
+			{
+				if(scoutingPoints.get(i).x - local.x < 0)
+				{
+					blocksInDirection[1]++;
+				}
+				else if(scoutingPoints.get(i).x - local.x > 0)
+				{
+					blocksInDirection[0]++;
+				}
+				else if(scoutingPoints.get(i).y - local.y < 0)
+				{
+					blocksInDirection[2]++;
+				}
+				else if(scoutingPoints.get(i).y - local.y > 0)
+				{
+					blocksInDirection[3]++;
+				}
+			}
+			for (int i = 0; i < directionHeuristic.size(); i++)
+			{
+				directionHeuristic.set(i, 20 * blocksInDirection[i] - 25);
+			}
+		}
+		
+		private void heuristicCalc()
+		{
+			distanceCalc();
+			if(hasMonster && (inventory.check().get(0).possession || inventory.check().get(2).possession))
+			{
+				if(distToShootingPoint == 0)
+				{
+					directionCalc();
+					moveBase.get(local.x).get(local.y).heuristic += 100;
+				}
+				else
+				{
+					moveBase.get(local.x).get(local.y).heuristic += 100 / (distToShootingPoint + 1);
+				}
+			}
+			else if(!hasMonster && inventory.check().get(2).possession && (inventory.check().get(0).number + inventory.check().get(2).number) > 2)
+			{
+				System.out.println("SCOUT");
+				
+				scoutingCalc();
+			}
+			else
+			{
+				directionHeuristic.set(0, -100);
+				directionHeuristic.set(1, -100);
+				directionHeuristic.set(2, -100);
+				directionHeuristic.set(3, -100);
+			}
+		}
+		
+		public int getDirectionHeuristic(Direction dir)
+		{
+			switch (dir)
+			{
+				case BAIXO:
+					return directionHeuristic.get(0);
+				case CIMA:
+					return directionHeuristic.get(1);
+				case ESQUERDA:
+					return directionHeuristic.get(2);
+				case DIREITA:
+					return directionHeuristic.get(3);
+			}
+			return 0;
+		}
+		
+		private void filterShootingPoints()
+		{
+			for (int n = 0; n < base.size(); n++)
+			{
+				for (int i = 0; i < shootingPoints.size(); i++)
+				{
+					if(base.get(n).local.equals(shootingPoints.get(i)) && base.get(n).info.contains("R"))
+					{
+						int distToTargetX = 0;
+						int distToTargetY = 0;
+						distToTargetX = shootingPoints.get(i).x - monsterLocal.x;
+						distToTargetY = shootingPoints.get(i).y - monsterLocal.y;
+						if(distToTargetX < 0)
+						{
+							for (int j = 0; j < shootingPoints.size(); j++)
+							{
+								if(shootingPoints.get(j).x - monsterLocal.x <= distToTargetX)
+								{
+									shootingPoints.remove(j);
+									i--;
+									j--;
+								}
+							}
+						}
+						else if(distToTargetX > 0)
+						{
+							for (int j = 0; j < shootingPoints.size(); j++)
+							{
+								if(shootingPoints.get(j).x - monsterLocal.x >= distToTargetX)
+								{
+									shootingPoints.remove(j);
+									i--;
+									j--;
+								}
+							}
+						}
+						else if(distToTargetY < 0)
+						{
+							for (int j = 0; j < shootingPoints.size(); j++)
+							{
+								if(shootingPoints.get(j).y - monsterLocal.y <= distToTargetY)
+								{
+									shootingPoints.remove(j);
+									i--;
+									j--;
+								}
+							}
+						}
+						else if(distToTargetY > 0)
+						{
+							for (int j = 0; j < shootingPoints.size(); j++)
+							{
+								if(shootingPoints.get(j).y - monsterLocal.y >= distToTargetY)
+								{
+									shootingPoints.remove(j);
+									i--;
+									j--;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		public String printHeuristic()
+		{
+			if(local.equals(human.getPosicao()))
+			{
+				return "H";
+			}
+			return Integer.toString(Collections.max(directionHeuristic));
+		}
 	}
 	
 	private Human human;
@@ -610,28 +943,36 @@ public class AI
 	private List<Possibility> possibilities = new ArrayList<Possibility>();
 	private List<Knowledge> base = new ArrayList<Knowledge>();
 	private List<ArrayList<MovementChoice>> moveBase = new ArrayList<ArrayList<MovementChoice>>();
+	private List<ArrayList<ShootChoice>> shootBase = new ArrayList<ArrayList<ShootChoice>>();
 	private List<InventoryInfo> inventoryInfo = new ArrayList<InventoryInfo>();
 	
 	private void generateMoveBase()
 	{
-		ArrayList<MovementChoice> tempBase = new ArrayList<MovementChoice>();
+		ArrayList<MovementChoice> tempMoveBase = new ArrayList<MovementChoice>();
+		ArrayList<ShootChoice> tempShootBase = new ArrayList<ShootChoice>();
 		List<ArrayList<String>> unmovables = board.getUnmovablesBoard();
 		for (int i = 0; i < unmovables.size(); i++)
 		{
-			tempBase = new ArrayList<MovementChoice>();
+			tempMoveBase = new ArrayList<MovementChoice>();
+			tempShootBase = new ArrayList<ShootChoice>();
 			for (int j = 0; j < unmovables.get(i).size(); j++)
 			{
 				MovementChoice movementChoice = new MovementChoice();
+				ShootChoice shootChoice = new ShootChoice();
+				shootChoice.local = new Point(i, j);
 				movementChoice.local = new Point(i, j);
-				tempBase.add(movementChoice);
+				tempMoveBase.add(movementChoice);
+				tempShootBase.add(shootChoice);
 			}
-			moveBase.add(tempBase);
+			moveBase.add(tempMoveBase);
+			shootBase.add(tempShootBase);
 		}
 		for (int i = 0; i < moveBase.size(); i++)
 		{
 			for (int j = 0; j < moveBase.get(i).size(); j++)
 			{
-				moveBase.get(i).get(j).initialize();
+				moveBase.get(i).get(j).initialize(new Point(i, j));
+				shootBase.get(i).get(j).initialize(new Point(i, j));
 				if(moveBase.get(i).get(j).getInfo().equals(""))
 				{
 					moveBase.get(i).get(j).setInfo("");
@@ -673,7 +1014,9 @@ public class AI
 				case ATIRAR:
 					if(possibilities.get(i).possible)
 					{
-						heuristics.add(-1000);
+						// System.out.println(possibilities.get(i).local);
+						heuristics.add(shootBase.get(possibilities.get(i).local.x).get(possibilities.get(i).local.y)
+								.getDirectionHeuristic(possibilities.get(i).direction));
 					}
 					else
 					{
@@ -723,6 +1066,7 @@ public class AI
 		moveBase.get(human.getPosicao().x).get(human.getPosicao().y).visit();
 		for (int i = 0; i < base.size(); i++)
 		{
+			shootBase.get(base.get(i).local.x).get(base.get(i).local.y).update();
 			moveBase.get(base.get(i).local.x).get(base.get(i).local.y).setInfo(base.get(i).info);
 		}
 		
@@ -744,28 +1088,28 @@ public class AI
 				for (int p = 0; p < possiblePlaces.length; p++)
 				{
 					possiblePlaces[p] = 0;
-					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local))
+					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local) || base.get(i).info.equals(""))
 					{
 						possiblePlaces[p]++;
 					}
 					
 					local = new Point(base.get(i).local);
 					local.setLocation(local.x + 1, local.y);
-					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local))
+					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local) || base.get(i).info.equals(""))
 					{
 						possiblePlaces[p]++;
 					}
 					
 					local = new Point(base.get(i).local);
 					local.setLocation(local.x, local.y - 1);
-					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local))
+					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local) || base.get(i).info.equals(""))
 					{
 						possiblePlaces[p]++;
 					}
 					
 					local = new Point(base.get(i).local);
 					local.setLocation(local.x, local.y + 1);
-					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local))
+					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local) || base.get(i).info.equals(""))
 					{
 						possiblePlaces[p]++;
 					}
@@ -1059,6 +1403,16 @@ public class AI
 			{
 				System.out.print(moveBase.get(i).get(j).printHeuristic());
 				if(j != moveBase.get(i).size() - 1)
+				{
+					System.out.print("  ");
+				}
+			}
+			System.out.print("]");
+			System.out.print("\t [");
+			for (int j = 0; j < shootBase.get(i).size(); j++)
+			{
+				System.out.print(shootBase.get(i).get(j).printHeuristic());
+				if(j != shootBase.get(i).size() - 1)
 				{
 					System.out.print("  ");
 				}

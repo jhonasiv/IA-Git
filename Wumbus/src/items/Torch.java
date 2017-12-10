@@ -34,6 +34,8 @@ public class Torch extends Items
 			{
 				possession = false;
 			}
+			durability = 2;
+			using = false;
 			human.setVisao(0);
 		}
 	}
@@ -52,7 +54,6 @@ public class Torch extends Items
 	{
 		numberOf += num;
 		possession = true;
-		effect();
 	}
 	
 	public int getNumberOf()

@@ -18,7 +18,7 @@ public class Monster extends Creature
 	public Monster(Board board)
 	{
 		super(board);
-		posicao = board.getMonster();
+		super.posicao = dungeon.getMonster();
 	}	
 	
 	private States states;
@@ -33,6 +33,7 @@ public class Monster extends Creature
 	public void die()
 	{
 		alive = false;
+		System.out.println("MONSTRO ESTA MORTO");
 		dungeon.modifyBoard(posicao, "M", "");
 		dungeon.eraseSense(posicao, 'f');
 	}
