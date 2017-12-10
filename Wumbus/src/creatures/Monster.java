@@ -18,7 +18,7 @@ public class Monster extends Creature
 	public Monster(Board board)
 	{
 		super(board);
-		super.posicao = dungeon.getMonster();
+		super.posicao = board.getMonster();
 	}	
 	
 	private States states;
@@ -45,6 +45,7 @@ public class Monster extends Creature
 	
 	public Point getPosicao()
 	{
+		System.out.println(posicao);
 		return posicao;
 	}
 }

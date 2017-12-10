@@ -22,7 +22,7 @@ public class Main
 			human.act();
 			try
 			{
-				Thread.sleep(50);
+				Thread.sleep(200);
 			} catch (InterruptedException intrx)
 			{
 				System.out.println(intrx);

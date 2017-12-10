@@ -31,7 +31,7 @@ public class Human extends Creature
 	
 	public class Possibility
 	{
-		
+		public String item;
 		public Actions action;
 		public Direction direction;
 		public Point local;
@@ -74,21 +74,22 @@ public class Human extends Creature
 			ai.update();
 //			ai.printSpecificModifier();
 			inventory.check();
-			ai.printPossibilites();
-			printBase();
+//			ai.printPossibilites();
+//			printBase();
 			ai.printMoveBase();
 			inventory.print();
 			dungeon.printBoard(posicao);
 			
-			System.out.print("Posicao inicial: " + posicao);
+//			System.out.print("Posicao inicial: " + posicao);
 			action = ai.chooseAction();
+			inventory.guaranteeUse();
 			switch (action.action)
 			{
 				case MOVER:
 					move(action.local);
 					break;
 				case ATIRAR:
-					if(inventory.check().get(2).possession)
+					if(action.item == "Fire_Arrow")
 					{
 						shoot(action.direction, Item.FIRE_ARROW);
 					}
@@ -102,7 +103,7 @@ public class Human extends Creature
 			}
 			movesThisTurn++;
 			interactWithBoard();
-			System.out.println("\tMoveu " + movesThisTurn + " casas " + "\tPosicao final : " + posicao);
+//			System.out.println("\tMoveu " + movesThisTurn + " casas " + "\tPosicao final : " + posicao);
 			if(speed%1 != 0)
 			{
 				numMoves++;

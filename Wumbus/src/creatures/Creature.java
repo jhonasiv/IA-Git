@@ -85,7 +85,6 @@ public class Creature
 			else
 			{
 				local = new Point(posicao);
-				System.out.println("local = " + local);
 				gatherInfo(local, 0);
 			}
 		}
@@ -236,7 +235,7 @@ public class Creature
 				}
 				else
 				{
-					sabedoria.info = dungeon.getLocalObstacle(local);
+					sabedoria.info = dungeon.getLocal(local);
 				}
 				base.add(sabedoria);
 			}
@@ -248,7 +247,7 @@ public class Creature
 				}
 				else
 				{
-					base.get(element).info += dungeon.getLocalObstacle(local);
+					base.get(element).info += dungeon.getLocal(local);
 				}
 			}
 		}
@@ -280,6 +279,7 @@ public class Creature
 	
 	public void die()
 	{
+		printBase();
 		System.out.println("Morreu");
 		alive = false;
 	}

@@ -120,8 +120,15 @@ public class Fire_Arrow extends Arrow
 	
 	public void acquire(int num)
 	{
-		numberOf++;
-		possession = true;
+		numberOf += num;
+		if(numberOf != 0)
+		{
+			possession = true;
+		}
+		else
+		{
+			possession = false;
+		}
 	}
 	
 	public int getNumberOf()

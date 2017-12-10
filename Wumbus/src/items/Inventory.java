@@ -14,6 +14,8 @@ public class Inventory
 	
 	public Inventory(Board board, Human human, Monster monster)
 	{
+		this.human = human;
+		this.board = board;
 		arrow = new Arrow(board, human, monster);
 		bow = new Bow(null, null, null);
 		fire_arrow = new Fire_Arrow(board, human, monster);
@@ -52,6 +54,8 @@ public class Inventory
 		ARROW, BOW, FIRE_ARROW, MAP, PICKAXE, GLASSES, TORCH
 	};
 	
+	private Human human;
+	private Board board;
 	private Arrow arrow;
 	private Bow bow;
 	private Fire_Arrow fire_arrow;
@@ -79,7 +83,6 @@ public class Inventory
 		info = new InventoryInfo(torch);
 		inventory.add(info);
 		
-		guaranteeUse();
 		return inventory;
 	}
 	
@@ -129,8 +132,15 @@ public class Inventory
 		}
 	}
 	
-	private void guaranteeUse()
+	public void guaranteeUse()
 	{
+		if(board.getLocal(human.getPosicao()).contains("F") && inventory.get(0).possession)
+		{
+			fire_arrow.acquire(arrow.getNumberOf());
+			arrow.numberOf = 0;
+			arrow.possession = false;
+			
+		}
 		if(inventory.get(6).possession)
 		{
 			torch.effect();
