@@ -604,6 +604,10 @@ public class Human extends Creature
 		}
 	}
 	
+	public AI getAI()
+	{
+		return ai;
+	}
 	public Point getPosicao()
 	{
 		return posicao;

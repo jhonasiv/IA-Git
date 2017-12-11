@@ -3,6 +3,7 @@ import java.util.Scanner;
 import board.*;
 import creatures.*;
 import gui.*;
+
 public class Main
 {
 	
@@ -14,18 +15,18 @@ public class Main
 		board.setBoardSize(20, 20);
 		Monster monster = new Monster(board);
 		Human human = new Human(board, monster);
-		Gui gui = new Gui(board, human);
+		Gui gui = new Gui(board, human, human.getAI());
 		gui.initialize();
 		monster.getHumanObject(human);
 		board.printBoard();
 		while (human.alive || monster.alive || !human.free)
 		{
-//			scanner.next();
+			// scanner.next();
 			human.act();
 			gui.update();
 			try
 			{
-				Thread.sleep(200);
+				Thread.sleep(500);
 			} catch (InterruptedException intrx)
 			{
 				System.out.println(intrx);

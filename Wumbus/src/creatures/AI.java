@@ -1466,6 +1466,11 @@ public class AI
 		
 	}
 	
+	public int getMoveHeuristic(Point local)
+	{
+		return moveBase.get(local.x).get(local.y).heuristic;
+	}
+	
 	public void printMoveBase()
 	{
 		System.out.println("\n\nHEURISTIC ");
