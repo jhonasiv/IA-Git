@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
-
 public class Board
 {
 	
@@ -16,17 +15,18 @@ public class Board
 	private List<ManageAtalhos> connections = new ArrayList<ManageAtalhos>();
 	public Obstacles rules = new Obstacles();
 	
-	private int width;
-	private int height;
+	public int width;
+	public int height;
 	
 	public class ManageAtalhos
 	{
+		
 		public Point entrada;
 		public Point saida;
 		
 		public boolean equals(Point pos)
 		{
-			return(pos.equals(entrada));
+			return (pos.equals(entrada));
 		}
 		
 		public String toString()
@@ -140,12 +140,12 @@ public class Board
 	private void connectAtalhos()
 	{
 		List<Point> atalhos = rules.getAtalhos();
-		for(int i = 0; i < atalhos.size(); i += 2)
+		for (int i = 0; i < atalhos.size(); i += 2)
 		{
 			ManageAtalhos connect = new ManageAtalhos();
-						
+			
 			connect.entrada = atalhos.get(i);
-			connect.saida = atalhos.get(i+1);
+			connect.saida = atalhos.get(i + 1);
 			connections.add(connect);
 			
 			connect = new ManageAtalhos();
@@ -416,24 +416,25 @@ public class Board
 	
 	public void printBoard()
 	{
-		System.out.println("BOARD" );
+		System.out.println("BOARD");
 		System.out.println();
 		for (int i = 0; i < this.board.size(); i++)
 		{
 			System.out.println(i + "\t" + this.board.get(i));
 		}
 	}
+	
 	public void printBoard(Point posicao)
 	{
-		System.out.println("BOARD\n" );
+		System.out.println("BOARD\n");
 		List<ArrayList<String>> printBoard = new ArrayList<ArrayList<String>>();
-		for(int i = 0; i < board.size(); i++)
+		for (int i = 0; i < board.size(); i++)
 		{
 			printBoard.add(new ArrayList<String>(board.get(i)));
 		}
 		if(!printBoard.get(posicao.x).get(posicao.y).equals("-"))
 		{
-			printBoard.get(posicao.x).set(posicao.y, board.get(posicao.x).get(posicao.y)+"H");
+			printBoard.get(posicao.x).set(posicao.y, board.get(posicao.x).get(posicao.y) + "H");
 		}
 		else
 		{
@@ -445,9 +446,27 @@ public class Board
 		}
 	}
 	
+	public List<ArrayList<String>> getPrintBoard(Point posicao)
+	{
+		List<ArrayList<String>> printBoard = new ArrayList<ArrayList<String>>();
+		for (int i = 0; i < board.size(); i++)
+		{
+			printBoard.add(new ArrayList<String>(board.get(i)));
+		}
+		if(!printBoard.get(posicao.x).get(posicao.y).equals("-"))
+		{
+			printBoard.get(posicao.x).set(posicao.y, board.get(posicao.x).get(posicao.y) + "H");
+		}
+		else
+		{
+			printBoard.get(posicao.x).set(posicao.y, "H");
+		}
+		return printBoard;
+	}
+	
 	public void printAtalhos()
 	{
-		for(int i = 0; i < connections.size(); i++)
+		for (int i = 0; i < connections.size(); i++)
 		{
 			System.out.println(connections.get(i).toString());
 		}
@@ -472,9 +491,10 @@ public class Board
 	{
 		StringBuilder localValue = new StringBuilder();
 		localValue.append(board.get(local.x).get(local.y));
-		for(int n = 0; n < localValue.length(); n++)
+		for (int n = 0; n < localValue.length(); n++)
 		{
-			if(localValue.charAt(n) == 'b' || localValue.charAt(n) == 'l' || localValue.charAt(n) == 'f' || localValue.charAt(n) == 'D' || localValue.charAt(n) == '-')
+			if(localValue.charAt(n) == 'b' || localValue.charAt(n) == 'l' || localValue.charAt(n) == 'f' || localValue.charAt(n) == 'D'
+					|| localValue.charAt(n) == '-')
 			{
 				localValue.deleteCharAt(n);
 			}
@@ -491,7 +511,7 @@ public class Board
 	{
 		return rules.getTorres();
 	}
-
+	
 	public List<Point> getFires()
 	{
 		return rules.getFogos();
@@ -510,7 +530,7 @@ public class Board
 	public Point getExit(Point entrada)
 	{
 		Point saida = new Point();
-		for(int i = 0; i < connections.size(); i++)
+		for (int i = 0; i < connections.size(); i++)
 		{
 			if(connections.get(i).equals(entrada))
 			{
