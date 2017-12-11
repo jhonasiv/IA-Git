@@ -282,7 +282,7 @@ public class Obstacles
 			case OURO:
 				if(!ouroDefinido)
 				{
-					if(Math.abs(linha - monstro.x) + Math.abs(coluna - monstro.y) <= 4)
+					if(Math.abs(linha - monstro.x) + Math.abs(coluna - monstro.y) <= 4 && Math.abs(linha - monstro.x) + Math.abs(coluna - monstro.y) != 0)
 					{
 						for (int n = 0; n < atual.length(); n++)
 						{

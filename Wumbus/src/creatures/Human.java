@@ -76,7 +76,7 @@ public class Human extends Creature
 			inventory.check();
 //			ai.printPossibilites();
 //			printBase();
-			ai.printMoveBase();
+//			ai.printMoveBase();
 			inventory.print();
 			dungeon.printBoard(posicao);
 			
@@ -607,6 +607,11 @@ public class Human extends Creature
 	public AI getAI()
 	{
 		return ai;
+	}
+	
+	public Inventory getInventory()
+	{
+		return inventory;
 	}
 	public Point getPosicao()
 	{

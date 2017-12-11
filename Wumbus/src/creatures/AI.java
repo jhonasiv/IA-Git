@@ -605,6 +605,7 @@ public class AI
 		private List<Point> shootingPoints = new ArrayList<Point>();
 		boolean hasMonster = false;
 		private int distToShootingPoint = 9999;
+		public int heuristic = 0;
 		private List<Integer> directionHeuristic = new ArrayList<Integer>();
 		public String item;
 		
@@ -851,6 +852,7 @@ public class AI
 				directionHeuristic.set(2, -100);
 				directionHeuristic.set(3, -100);
 			}
+			heuristic = Collections.max(directionHeuristic);
 		}
 		
 		public int getDirectionHeuristic(Direction dir)
@@ -1469,6 +1471,16 @@ public class AI
 	public int getMoveHeuristic(Point local)
 	{
 		return moveBase.get(local.x).get(local.y).heuristic;
+	}
+	
+	public int getShootHeuristic(Point local)
+	{
+		return shootBase.get(local.x).get(local.y).heuristic;
+	}
+	
+	public int getMineHeuristic(Point local)
+	{
+		return mineBase.get(local.x).get(local.y).getHeuristic();
 	}
 	
 	public void printMoveBase()

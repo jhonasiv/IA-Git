@@ -43,7 +43,7 @@ public class Fire_Arrow extends Arrow
 							}
 						}
 						human.gatherInfo(trajetoria, 0);
-						if (trajetoria == monster.getPosicao())
+						if (trajetoria.equals(monster.getPosicao()))
 						{
 							monster.die();
 						}
@@ -63,7 +63,7 @@ public class Fire_Arrow extends Arrow
 							}
 						}
 						human.gatherInfo(trajetoria, 0);
-						if (trajetoria == monster.getPosicao())
+						if (trajetoria.equals(monster.getPosicao()))
 						{
 							monster.die();
 						}
@@ -83,7 +83,7 @@ public class Fire_Arrow extends Arrow
 							}
 						}
 						human.gatherInfo(trajetoria, 0);
-						if (trajetoria == monster.getPosicao())
+						if (trajetoria.equals(monster.getPosicao()))
 						{
 							monster.die();
 						}
@@ -103,7 +103,7 @@ public class Fire_Arrow extends Arrow
 							}
 						}
 						human.gatherInfo(trajetoria, 0);
-						if (trajetoria == monster.getPosicao())
+						if (trajetoria.equals(monster.getPosicao()))
 						{
 							monster.die();
 						}

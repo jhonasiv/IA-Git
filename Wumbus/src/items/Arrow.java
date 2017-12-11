@@ -41,7 +41,7 @@ public class Arrow extends Items
 								break OUTER;
 							}
 						}
-						if(trajetoria == monster.getPosicao())
+						if(trajetoria.equals(monster.getPosicao()))
 						{
 							monster.die();
 						}
@@ -60,7 +60,7 @@ public class Arrow extends Items
 								break OUTER;
 							}
 						}
-						if(trajetoria == monster.getPosicao())
+						if(trajetoria.equals(monster.getPosicao()))
 						{
 							monster.die();
 						}
@@ -79,7 +79,7 @@ public class Arrow extends Items
 								break OUTER;
 							}
 						}
-						if(trajetoria == monster.getPosicao())
+						if(trajetoria.equals(monster.getPosicao()))
 						{
 							monster.die();
 						}
@@ -98,7 +98,7 @@ public class Arrow extends Items
 								break OUTER;
 							}
 						}
-						if(trajetoria == monster.getPosicao())
+						if(trajetoria.equals(monster.getPosicao()))
 						{
 							monster.die();
 						}

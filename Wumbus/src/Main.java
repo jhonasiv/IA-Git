@@ -15,7 +15,7 @@ public class Main
 		board.setBoardSize(20, 20);
 		Monster monster = new Monster(board);
 		Human human = new Human(board, monster);
-		Gui gui = new Gui(board, human, human.getAI());
+		Gui gui = new Gui(board, human, human.getAI(), human.getInventory());
 		gui.initialize();
 		monster.getHumanObject(human);
 		board.printBoard();
