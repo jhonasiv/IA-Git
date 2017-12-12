@@ -173,6 +173,28 @@ public class Gui extends JFrame implements ActionListener
 				{
 					buttons[i][j].setForeground(Color.WHITE);
 					buttons[i][j].setBackground(Color.DARK_GRAY);
+					if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("O"))
+					{
+						buttons[i][j].setBackground(Color.YELLOW);
+						buttons[i][j].setForeground(Color.BLACK);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("T"))
+					{
+						buttons[i][j].setBackground(Color.BLUE);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("B"))
+					{
+						buttons[i][j].setForeground(Color.BLACK);
+						buttons[i][j].setBackground(Color.PINK);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("S"))
+					{
+						buttons[i][j].setBackground(Color.CYAN);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("E"))
+					{
+						buttons[i][j].setBackground(Color.BLACK);
+					}
 					buttons[i][j].setText(board.getPrintBoard(human.getPosicao()).get(i).get(j));
 				}
 			}
@@ -189,6 +211,28 @@ public class Gui extends JFrame implements ActionListener
 				{
 					buttons[i][j].setForeground(Color.WHITE);
 					buttons[i][j].setBackground(Color.DARK_GRAY);
+					if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("O"))
+					{
+						buttons[i][j].setForeground(Color.BLACK);
+						buttons[i][j].setBackground(Color.YELLOW);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("T"))
+					{
+						buttons[i][j].setBackground(Color.BLUE);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("B"))
+					{
+						buttons[i][j].setForeground(Color.BLACK);
+						buttons[i][j].setBackground(Color.PINK);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("S"))
+					{
+						buttons[i][j].setBackground(Color.CYAN);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("E"))
+					{
+						buttons[i][j].setBackground(Color.BLACK);
+					}
 					buttons[i][j].setText("");
 				}
 			}
@@ -207,6 +251,26 @@ public class Gui extends JFrame implements ActionListener
 				{
 					buttons[i][j].setBackground(Color.DARK_GRAY);
 					buttons[i][j].setForeground(Color.WHITE);
+					if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("O"))
+					{
+						buttons[i][j].setBackground(Color.YELLOW);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("T"))
+					{
+						buttons[i][j].setBackground(Color.BLUE);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("B"))
+					{
+						buttons[i][j].setBackground(Color.PINK);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("S"))
+					{
+						buttons[i][j].setBackground(Color.CYAN);
+					}
+					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("E"))
+					{
+						buttons[i][j].setBackground(Color.BLACK);
+					}
 					buttons[i][j].setText(Integer.toString(ai.getMoveHeuristic(new Point(i, j))));
 					
 				}
@@ -241,6 +305,10 @@ public class Gui extends JFrame implements ActionListener
 				{
 					buttons[i][j].setBackground(Color.DARK_GRAY);
 					buttons[i][j].setForeground(Color.WHITE);
+					if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("R"))
+					{
+						buttons[i][j].setBackground(Color.ORANGE);
+					}
 					buttons[i][j].setText(Integer.toString(ai.getMineHeuristic(new Point(i, j))));
 					
 				}

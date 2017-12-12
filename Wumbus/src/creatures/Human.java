@@ -469,16 +469,13 @@ public class Human extends Creature
 			}
 		}
 		
-		for (int n = 0; n < dungeon.getLocal(posicao).length(); n++)
-		{
-			if(dungeon.getLocal(posicao).charAt(n) == 'F')
+			if(dungeon.getLocal(posicao).contains("F"))
 			{
-				dungeon.modifyBoard(posicao, 'F');
 				inventory.add(Item.TORCH, 1);
+				inventory.guaranteeUse();
+				dungeon.modifyBoard(posicao, 'F');
 			}
-		}
 		refreshBase(posicao);
-		inventory.guaranteeUse();
 	}
 	
 	private void goUpTower()
