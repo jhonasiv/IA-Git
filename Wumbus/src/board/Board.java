@@ -298,21 +298,21 @@ public class Board
 		{
 			if(senseDown.charAt(itt) == sense)
 			{
-				senseDown.deleteCharAt(sense);
+				senseDown.deleteCharAt(itt);
 			}
 		}
 		for (int itt = 0; itt < senseLeft.length(); itt++)
 		{
 			if(senseLeft.charAt(itt) == sense)
 			{
-				senseLeft.deleteCharAt(sense);
+				senseLeft.deleteCharAt(itt);
 			}
 		}
 		for (int itt = 0; itt < senseRight.length(); itt++)
 		{
 			if(senseRight.charAt(itt) == sense)
 			{
-				senseRight.deleteCharAt(sense);
+				senseRight.deleteCharAt(itt);
 			}
 		}
 		
@@ -405,10 +405,19 @@ public class Board
 		return str;
 	}
 	
-	public void modifyBoard(Point local, String change, String newVal)
+	public void modifyBoard(Point local, char change)
 	{
-		board.get(local.x).get(local.y).replace(change, newVal);
-		if(board.get(local.x).get(local.y) == "")
+		StringBuilder newValue = new StringBuilder();
+		newValue.append(board.get(local.x).get(local.y));
+		for(int i = 0; i < newValue.length(); i++)
+		{
+			if(newValue.charAt(i) == change)
+			{
+				newValue.deleteCharAt(i);
+			}
+		}
+		board.get(local.x).set(local.y, newValue.toString());
+		if(board.get(local.x).get(local.y).equals(""))
 		{
 			board.get(local.x).set(local.y, "-");
 		}

@@ -13,7 +13,7 @@ public class Torch extends Items
 	}
 	
 	private int numberOf = 0;
-	private int durability = 2;
+	private int durability = 4;
 	private boolean using = false;
 	
 	public void effect()
@@ -34,7 +34,7 @@ public class Torch extends Items
 			{
 				possession = false;
 			}
-			durability = 2;
+			durability = 4;
 			using = false;
 			human.setVisao(0);
 		}

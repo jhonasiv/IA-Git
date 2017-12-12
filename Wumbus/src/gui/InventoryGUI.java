@@ -2,6 +2,7 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class InventoryGUI extends JFrame implements ActionListener
 			labels = new JLabel[informations.size()];
 			labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
 			
-			setSize(400,300);
+			setMinimumSize(new Dimension(225,150));
 			setLayout(new BorderLayout());
 			
 			for (int i = 0; i < informations.size(); i++)
@@ -59,6 +60,7 @@ public class InventoryGUI extends JFrame implements ActionListener
 			
 //			setVisible(true);
 			setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+			pack();
 		}
 		
 	}
@@ -71,14 +73,14 @@ public class InventoryGUI extends JFrame implements ActionListener
 			labels[i].setText(informations.get(i).toString());
 //			labelsPanel.add(labels[i]);
 		}
-		
+		pack();
 	}
 	
 	public void actionPerformed(ActionEvent e)
 	{
 		if(e.getSource().equals(exit))
 		{
-			putDown = true;
+			close();
 		}
 	}
 	

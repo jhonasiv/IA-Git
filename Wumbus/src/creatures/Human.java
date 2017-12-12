@@ -60,15 +60,16 @@ public class Human extends Creature
 	private List<Possibility> possibleActions = new ArrayList<Possibility>();
 	private boolean safety_state_change = false;
 	public boolean free = false;
-	
+	public Possibility action = new Possibility();
+		
 	public void act()
 	{
-		Possibility action = new Possibility();
 		int movesThisTurn = 0;
 		int appr = 0;
 		int totalMoves = (int)speed + (int)(numMoves/4);
 		while ((movesThisTurn < totalMoves) && alive && !free)
 		{
+			interactWithBoard();
 			checkPossibilities();
 			percepcao();
 			ai.update();
@@ -82,7 +83,7 @@ public class Human extends Creature
 			
 //			System.out.print("Posicao inicial: " + posicao);
 			action = ai.chooseAction();
-			inventory.guaranteeUse();
+//			inventory.guaranteeUse();
 			switch (action.action)
 			{
 				case MOVER:
@@ -102,7 +103,6 @@ public class Human extends Creature
 					break;
 			}
 			movesThisTurn++;
-			interactWithBoard();
 //			System.out.println("\tMoveu " + movesThisTurn + " casas " + "\tPosicao final : " + posicao);
 			if(speed%1 != 0)
 			{
@@ -130,13 +130,7 @@ public class Human extends Creature
 	private void mine(Point local)
 	{
 		inventory.mine(local);
-		for (int i = 0; i < base.size(); i++)
-		{
-			if(base.get(i).sameLocation(local))
-			{
-				base.get(i).info = dungeon.getLocal(local);
-			}
-		}
+		refreshBase(local);
 	}
 	
 	private void checkPossibilities()
@@ -146,7 +140,7 @@ public class Human extends Creature
 		Point local = new Point();
 		
 		/// MOVER PARA BAIXO
-		local = new Point(posicao.x - 1, posicao.y);
+		local = new Point(posicao.x + 1, posicao.y);
 		possib.action = Actions.MOVER;
 		possib.direction = Direction.BAIXO;
 		possib.local = local;
@@ -171,7 +165,7 @@ public class Human extends Creature
 		possib = new Possibility();
 		possib.action = Actions.MOVER;
 		possib.direction = Direction.CIMA;
-		local = new Point(posicao.x + 1, posicao.y);
+		local = new Point(posicao.x - 1, posicao.y);
 		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
@@ -300,11 +294,11 @@ public class Human extends Creature
 		possib = new Possibility();
 		possib.action = Actions.QUEBRAR;
 		possib.direction = Direction.BAIXO;
-		local = new Point(posicao.x - 1, posicao.y);
+		local = new Point(posicao.x + 1, posicao.y);
 		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
-			if(dungeon.getLocal(local) == "R")
+			if(dungeon.getLocal(local).contains("R"))
 			{
 				possib.possible = true;
 			}
@@ -323,11 +317,11 @@ public class Human extends Creature
 		possib = new Possibility();
 		possib.action = Actions.QUEBRAR;
 		possib.direction = Direction.CIMA;
-		local = new Point(posicao.x + 1, posicao.y);
+		local = new Point(posicao.x - 1, posicao.y);
 		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
-			if(dungeon.getLocal(local) == "R")
+			if(dungeon.getLocal(local).contains("R"))
 			{
 				possib.possible = true;
 			}
@@ -350,7 +344,7 @@ public class Human extends Creature
 		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
-			if(dungeon.getLocal(local) == "R")
+			if(dungeon.getLocal(local).contains("R"))
 			{
 				possib.possible = true;
 			}
@@ -373,7 +367,7 @@ public class Human extends Creature
 		possib.local = local;
 		if(dungeon.validPoint(local))
 		{
-			if(dungeon.getLocal(local) == "R")
+			if(dungeon.getLocal(local).contains("R"))
 			{
 				possib.possible = true;
 			}
@@ -458,14 +452,8 @@ public class Human extends Creature
 			if(dungeon.getLocal(posicao).charAt(n) == 'O')
 			{
 				changeState(States.LAST_BREATH);
-				dungeon.modifyBoard(posicao, "O", "");
-				for (int i = 0; i < base.size(); i++)
-				{
-					if(base.get(i).sameLocation(posicao))
-					{
-						base.get(i).info = dungeon.getLocal(posicao);
-					}
-				}
+				dungeon.modifyBoard(posicao, 'O');
+				refreshBase(posicao);
 			}
 		}
 	}
@@ -485,10 +473,12 @@ public class Human extends Creature
 		{
 			if(dungeon.getLocal(posicao).charAt(n) == 'F')
 			{
-				dungeon.modifyBoard(posicao, "F", "");
+				dungeon.modifyBoard(posicao, 'F');
 				inventory.add(Item.TORCH, 1);
 			}
 		}
+		refreshBase(posicao);
+		inventory.guaranteeUse();
 	}
 	
 	private void goUpTower()
@@ -532,9 +522,10 @@ public class Human extends Creature
 					local = new Point(posicao.x + quadrante, posicao.y - quadrante);
 					gatherInfo(local, quadrante);
 				}
-				dungeon.modifyBoard(posicao, "T", "");
+				
 			}
 		}
+		
 	}
 	
 	private void openChest()
@@ -599,9 +590,10 @@ public class Human extends Creature
 				{
 					inventory.add(Item.MAP, 1);
 				}
-				dungeon.modifyBoard(posicao, "B", "");
+				dungeon.modifyBoard(posicao, 'B');
 			}
 		}
+		refreshBase(posicao);
 	}
 	
 	public AI getAI()
@@ -616,6 +608,11 @@ public class Human extends Creature
 	public Point getPosicao()
 	{
 		return posicao;
+	}
+	
+	public Possibility getAction()
+	{
+		return action;
 	}
 	
 	public List<Possibility> getPossibilities()

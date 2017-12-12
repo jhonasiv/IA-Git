@@ -15,11 +15,11 @@ public class Main
 		board.setBoardSize(20, 20);
 		Monster monster = new Monster(board);
 		Human human = new Human(board, monster);
-		Gui gui = new Gui(board, human, human.getAI(), human.getInventory());
+		Gui gui = new Gui(board, monster, human, human.getAI(), human.getInventory());
 		gui.initialize();
 		monster.getHumanObject(human);
 		board.printBoard();
-		while (human.alive || monster.alive || !human.free)
+		while (true)
 		{
 			// scanner.next();
 			human.act();

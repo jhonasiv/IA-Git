@@ -19,16 +19,15 @@ public class Pickaxe extends Items
 	
 	public void effect(Point local)
 	{
-		if(possession)
+		
+		board.modifyBoard(local, 'R');
+		human.gatherInfo(local, 0);
+		numberOf--;
+		if(numberOf == 0)
 		{
-			board.modifyBoard(local, "R", "");
-			human.gatherInfo(local, 0);
-			numberOf--;
-			if(numberOf == 0)
-			{
-				possession = false;
-			}
+			possession = false;
 		}
+		
 	}
 	
 	public boolean getPossession()

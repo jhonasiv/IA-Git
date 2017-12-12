@@ -670,27 +670,26 @@ public class AI
 		
 		private void directionCalc()
 		{
-			for (int i = 0; i < shootingPoints.size(); i++)
+			
+			int distX = local.x - monsterLocal.x;
+			int distY = local.y - monsterLocal.y;
+			if(distX < 0)
 			{
-				int distX = shootingPoints.get(i).x - local.x;
-				int distY = shootingPoints.get(i).y - local.y;
-				if(distX < 0)
-				{
-					directionHeuristic.set(1, 400);
-				}
-				else if(distX > 0)
-				{
-					directionHeuristic.set(0, 400);
-				}
-				if(distY < 0)
-				{
-					directionHeuristic.set(2, 400);
-				}
-				else if(distY > 0)
-				{
-					directionHeuristic.set(3, 400);
-				}
+				directionHeuristic.set(0, 400);
 			}
+			else if(distX > 0)
+			{
+				directionHeuristic.set(1, 400);
+			}
+			else if(distY < 0)
+			{
+				directionHeuristic.set(3, 400);
+			}
+			else if(distY > 0)
+			{
+				directionHeuristic.set(2, 400);
+			}
+			
 		}
 		
 		private void scoutingCalc()
@@ -1122,7 +1121,6 @@ public class AI
 		{
 			choiceIndex = equals.get(ran.nextInt(equals.size()));
 		}
-		// System.out.println(choiceIndex);
 		
 		return possibilities.get(choiceIndex);
 	}
@@ -1152,84 +1150,84 @@ public class AI
 			double probability = 0;
 			int[] possiblePlaces = { 0, 0, 0 };
 			
-				presetAllProbabilities(i, 1);
+			presetAllProbabilities(i, 1);
+			
+			local = new Point(base.get(i).local);
+			local.setLocation(local.x - 1, local.y);
+			for (int p = 0; p < possiblePlaces.length; p++)
+			{
+				possiblePlaces[p] = 0;
+				if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local)
+						|| base.get(i).info.equals(""))
+				{
+					possiblePlaces[p]++;
+				}
 				
 				local = new Point(base.get(i).local);
-				local.setLocation(local.x - 1, local.y);
-				for (int p = 0; p < possiblePlaces.length; p++)
+				local.setLocation(local.x + 1, local.y);
+				if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local)
+						|| base.get(i).info.equals(""))
 				{
-					possiblePlaces[p] = 0;
-					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local)
-							|| base.get(i).info.equals(""))
-					{
-						possiblePlaces[p]++;
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x + 1, local.y);
-					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local)
-							|| base.get(i).info.equals(""))
-					{
-						possiblePlaces[p]++;
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y - 1);
-					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local)
-							|| base.get(i).info.equals(""))
-					{
-						possiblePlaces[p]++;
-					}
-					
-					local = new Point(base.get(i).local);
-					local.setLocation(local.x, local.y + 1);
-					if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local)
-							|| base.get(i).info.equals(""))
-					{
-						possiblePlaces[p]++;
-					}
+					possiblePlaces[p]++;
 				}
-				if(base.get(i).info.contains("b"))
+				
+				local = new Point(base.get(i).local);
+				local.setLocation(local.x, local.y - 1);
+				if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local)
+						|| base.get(i).info.equals(""))
 				{
-					pocoPossibility = true;
-					if(possiblePlaces[0] != 4)
-					{
-						probability = (1 / (4 - (double) possiblePlaces[0]));
-					}
-					else
-					{
-						probability = 0;
-					}
-					setSpecificProbabilities(Entity.POCO, i, probability);
+					possiblePlaces[p]++;
 				}
-				else if(base.get(i).info.contains("f"))
+				
+				local = new Point(base.get(i).local);
+				local.setLocation(local.x, local.y + 1);
+				if((board.validPoint(local) && moveBase.get(local.x).get(local.y).possibleEntities.get(p).probability == 0) || !board.validPoint(local)
+						|| base.get(i).info.equals(""))
 				{
-					monstroPossibility = true;
-					if(possiblePlaces[1] != 4)
-					{
-						probability = (1 / (4 - (double) possiblePlaces[1]));
-					}
-					else
-					{
-						probability = 0;
-					}
-					
-					setSpecificProbabilities(Entity.MONSTRO, i, probability);
+					possiblePlaces[p]++;
 				}
-				else if(base.get(i).info.contains("l"))
+			}
+			if(base.get(i).info.contains("b"))
+			{
+				pocoPossibility = true;
+				if(possiblePlaces[0] != 4)
 				{
-					ouroPossibility = true;
-					if(possiblePlaces[2] != 4)
-					{
-						probability = (1 / (4 - (double) possiblePlaces[2]));
-					}
-					else
-					{
-						probability = 0;
-					}
-					
-					setSpecificProbabilities(Entity.OURO, i, probability);
+					probability = (1 / (4 - (double) possiblePlaces[0]));
 				}
+				else
+				{
+					probability = 0;
+				}
+				setSpecificProbabilities(Entity.POCO, i, probability);
+			}
+			else if(base.get(i).info.contains("f"))
+			{
+				monstroPossibility = true;
+				if(possiblePlaces[1] != 4)
+				{
+					probability = (1 / (4 - (double) possiblePlaces[1]));
+				}
+				else
+				{
+					probability = 0;
+				}
+				
+				setSpecificProbabilities(Entity.MONSTRO, i, probability);
+			}
+			else if(base.get(i).info.contains("l"))
+			{
+				ouroPossibility = true;
+				if(possiblePlaces[2] != 4)
+				{
+					probability = (1 / (4 - (double) possiblePlaces[2]));
+				}
+				else
+				{
+					probability = 0;
+				}
+				
+				setSpecificProbabilities(Entity.OURO, i, probability);
+			}
 			
 			if(!pocoPossibility)
 			{

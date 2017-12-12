@@ -14,7 +14,7 @@ public class Creature
 		dungeon = board;
 	}
 	
-	protected class Knowledge
+	public class Knowledge
 	{
 		
 		public Point local = new Point();
@@ -89,6 +89,17 @@ public class Creature
 			}
 		}
 		filterBase();
+	}
+	
+	public void refreshBase(Point local)
+	{
+		for(int i = 0; i < base.size(); i++)
+		{
+			if(base.get(i).sameLocation(local))
+			{
+				base.get(i).info = dungeon.getLocal(local);
+			}
+		}
 	}
 	
 	public void addToBase(Point local)
@@ -279,7 +290,6 @@ public class Creature
 	
 	public void die()
 	{
-		printBase();
 		System.out.println("Morreu");
 		alive = false;
 	}

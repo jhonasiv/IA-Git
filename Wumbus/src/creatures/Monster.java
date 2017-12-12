@@ -34,8 +34,9 @@ public class Monster extends Creature
 	{
 		alive = false;
 		System.out.println("MONSTRO ESTA MORTO");
-		dungeon.modifyBoard(posicao, "M", "");
+		dungeon.modifyBoard(posicao, 'M');
 		dungeon.eraseSense(posicao, 'f');
+		refreshBase(posicao);
 	}
 	
 	private void changeState()
@@ -45,7 +46,7 @@ public class Monster extends Creature
 	
 	public Point getPosicao()
 	{
-		System.out.println(posicao);
+//		System.out.println(posicao);
 		return posicao;
 	}
 }
