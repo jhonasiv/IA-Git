@@ -1,4 +1,4 @@
-import java.util.Scanner;
+
 
 import board.*;
 import creatures.*;
@@ -10,7 +10,6 @@ public class Main
 	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
-		Scanner scanner = new Scanner(System.in);
 		Board board = new Board();
 		board.setBoardSize(20, 20);
 		Monster monster = new Monster(board);
@@ -18,21 +17,32 @@ public class Main
 		Gui gui = new Gui(board, monster, human, human.getAI(), human.getInventory());
 		gui.initialize();
 		monster.getHumanObject(human);
-		board.printBoard();
 		while (true)
 		{
-			// scanner.next();
-			human.act();
+			if(!gui.pause)
+			{
+				human.act();
+			}
 			gui.update();
 			try
 			{
-				Thread.sleep(500);
+				Thread.sleep(1000);
 			} catch (InterruptedException intrx)
 			{
 				System.out.println(intrx);
 			}
+			if(gui.reset)
+			{
+				board = new Board();
+				board.setBoardSize(20, 20);
+				monster = new Monster(board);
+				human = new Human(board, monster);
+				gui = new Gui(board, monster, human, human.getAI(), human.getInventory());
+				gui.initialize();
+				monster.getHumanObject(human);
+				gui.reset = false;
+			}
 		}
-		// human.printBase();
 	}
 	
 }

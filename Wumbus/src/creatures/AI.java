@@ -1,12 +1,10 @@
 
 package creatures;
 
-import java.awt.Container;
 import java.awt.Point;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -27,7 +25,6 @@ public class AI
 		this.inventory = inventory;
 		generateMoveBase();
 		update();
-		// printMoveBase();
 	}
 	
 	private enum Entity {
@@ -450,10 +447,14 @@ public class AI
 					heuristic += (int) (possibleEntities.get(i).getProbability() * possibleEntities.get(i).value);
 				}
 			}
-			if(visited)
+			else if(visited && inventoryInfo.get(4).possession)
 			{
-				heuristic = -Math.abs(heuristic) - (int) (1.5 * numVisits);
+				heuristic = -Math.abs(infoValue) + (int)distModifier - (int) (1.5 * numVisits);
 			}
+			else if(visited)
+			{
+				heuristic = -Math.abs(heuristic) - (int)(1.5 * numVisits);
+ 			}
 		}
 		
 		private void addProbability(Entity ent, double probability)
@@ -818,14 +819,14 @@ public class AI
 		private void heuristicCalc()
 		{
 			distanceCalc();
-			if(hasMonster && (inventory.check().get(0).possession || inventory.check().get(2).possession))
+			if(hasMonster && (inventoryInfo.get(0).possession || inventoryInfo.get(2).possession))
 			{
 				// System.out.println(shootingPoints);
 				if(distToShootingPoint == 0)
 				{
 					directionCalc();
 					moveBase.get(local.x).get(local.y).heuristic += 50;
-					if(inventory.check().get(2).possession)
+					if(inventoryInfo.get(2).possession)
 					{
 						item = "Fire_Arrow";
 					}
@@ -839,7 +840,7 @@ public class AI
 					moveBase.get(local.x).get(local.y).heuristic += 100 / (distToShootingPoint + 1);
 				}
 			}
-			else if(!hasMonster && inventory.check().get(2).possession && (inventory.check().get(0).number + inventory.check().get(2).number) > 2)
+			else if(!hasMonster && inventoryInfo.get(2).possession && (inventoryInfo.get(0).number + inventoryInfo.get(2).number) > 2)
 			{
 				scoutingCalc();
 				item = "Fire_Arrow";
@@ -953,14 +954,12 @@ public class AI
 	private class MineChoice
 	{
 		
-		private void initialize(Point local)
+		private void initialize()
 		{
 			info = "";
-			this.local = local;
 		}
 		
 		private String info = new String();
-		private Point local = new Point();
 		private int heuristic = -100;
 		
 		public void update(String information)
@@ -973,11 +972,11 @@ public class AI
 		{
 			if(info.contains("R"))
 			{
-				if(inventory.check().get(5).possession && inventory.check().get(5).number == 1)
+				if(inventoryInfo.get(5).possession && inventoryInfo.get(5).number == 1)
 				{
 					heuristic = -8;
 				}
-				else if(inventory.check().get(5).number > 1)
+				else if(inventoryInfo.get(5).number > 1)
 				{
 					heuristic = 10;
 				}
@@ -1036,7 +1035,7 @@ public class AI
 			{
 				moveBase.get(i).get(j).initialize(new Point(i, j));
 				shootBase.get(i).get(j).initialize(new Point(i, j));
-				mineBase.get(i).get(j).initialize(new Point(i, j));
+				mineBase.get(i).get(j).initialize();
 				if(moveBase.get(i).get(j).getInfo().equals(""))
 				{
 					moveBase.get(i).get(j).setInfo("");

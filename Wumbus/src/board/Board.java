@@ -5,8 +5,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-
 public class Board
 {
 	

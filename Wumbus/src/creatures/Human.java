@@ -43,6 +43,7 @@ public class Human extends Creature
 	{
 		super(board);
 		super.posicao = board.getHuman();
+		this.monster = monster;
 		inventory = new Inventory(board, this, monster);
 		state = States.CURIOUS;
 		inventory.add(Item.BOW, 1);
@@ -56,6 +57,7 @@ public class Human extends Creature
 	private AI ai;
 	private States state;
 	private Inventory inventory;
+	private Monster monster;
 	private int numMoves = 0;
 	private List<Possibility> possibleActions = new ArrayList<Possibility>();
 	private boolean safety_state_change = false;
@@ -65,7 +67,6 @@ public class Human extends Creature
 	public void act()
 	{
 		int movesThisTurn = 0;
-		int appr = 0;
 		int totalMoves = (int)speed + (int)(numMoves/4);
 		while ((movesThisTurn < totalMoves) && alive && !free)
 		{
@@ -73,17 +74,9 @@ public class Human extends Creature
 			checkPossibilities();
 			percepcao();
 			ai.update();
-//			ai.printSpecificModifier();
 			inventory.check();
-//			ai.printPossibilites();
-//			printBase();
-//			ai.printMoveBase();
-			inventory.print();
-			dungeon.printBoard(posicao);
-			
-//			System.out.print("Posicao inicial: " + posicao);
 			action = ai.chooseAction();
-//			inventory.guaranteeUse();
+			inventory.guaranteeUse();
 			switch (action.action)
 			{
 				case MOVER:
@@ -103,7 +96,7 @@ public class Human extends Creature
 					break;
 			}
 			movesThisTurn++;
-//			System.out.println("\tMoveu " + movesThisTurn + " casas " + "\tPosicao final : " + posicao);
+
 			if(speed%1 != 0)
 			{
 				numMoves++;
@@ -119,12 +112,16 @@ public class Human extends Creature
 	private void move(Point location)
 	{
 		posicao = location;
-		// System.out.println(posicao);
+
 	}
 	
 	private void shoot(Direction dir, Item item)
 	{
 		inventory.shoot(item, dir);
+		if(!monster.alive)
+		{
+			refreshBase(monster.getPosicao());
+		}
 	}
 	
 	private void mine(Point local)

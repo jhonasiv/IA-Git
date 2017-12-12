@@ -3,15 +3,14 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.jar.Pack200.Unpacker;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -23,7 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
-import javax.swing.JCheckBox;
+
 
 import board.Board;
 import creatures.AI;
@@ -32,6 +31,7 @@ import creatures.Human.Actions;
 import creatures.Monster;
 import items.Inventory;
 
+@SuppressWarnings("serial")
 public class Gui extends JFrame implements ActionListener
 {
 	
@@ -49,6 +49,7 @@ public class Gui extends JFrame implements ActionListener
 	private JPanel mainPanel;
 	private JPanel buttonPanel;
 	private JPanel actionBox;
+	private JPanel controlBox;
 	private JPanel checkPanel;
 	private JPanel newsPanel;
 	private JLabel actionLabel;
@@ -57,7 +58,11 @@ public class Gui extends JFrame implements ActionListener
 	private JButton inventoryButton;
 	private ButtonGroup checkGroup;
 	private InventoryGUI inventoryGui;
-	private boolean activateInvGui = false;
+	public boolean pause = false;
+	private JButton pauseButton;
+	private JButton resetButton;
+	private Point lastPosition = new Point();
+	public boolean reset = false;
 	
 	public Gui(Board board, Monster monster, Human human, AI ai, Inventory inventory)
 	{
@@ -70,11 +75,13 @@ public class Gui extends JFrame implements ActionListener
 	
 	public void initialize()
 	{
+		
 		news = new News();
 		checkGroup = new ButtonGroup();
 		mainPanel = new JPanel();
 		buttonPanel = new JPanel();
 		checkPanel = new JPanel();
+		controlBox = new JPanel();
 		actionBox = new JPanel();
 		newsPanel = new JPanel();
 		moveHeuristic = new JRadioButton("Move Heuristic");
@@ -84,8 +91,10 @@ public class Gui extends JFrame implements ActionListener
 		baseView = new JRadioButton("Base View");
 		inventoryButton = new JButton("Inventory");
 		actionLabel = new JLabel("");
-		newsLabel = new JTextArea();
+		newsLabel = new JTextArea("Que os jogos comecem!");
 		buttons = new JButton[board.width][board.height];
+		pauseButton = new JButton("Pause");
+		resetButton = new JButton("Reset");
 		inventoryGui = new InventoryGUI(inventory);
 		
 		inventoryGui.initialize();
@@ -101,36 +110,43 @@ public class Gui extends JFrame implements ActionListener
 		
 		boardView.setSelected(true);
 		setLayout(new BorderLayout());
-		// setResizable(false);
 		newsPanel.setLayout(new BoxLayout(newsPanel, BoxLayout.Y_AXIS));
-//		newsPanel.setMinimumSize(new Dimension(0, 400));
-		newsPanel.setMaximumSize(new Dimension(200, 400));
+		newsPanel.setMaximumSize(new Dimension(300, 400));
 		checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
 		mainPanel.setLayout(new GridBagLayout());
 		actionBox.setLayout(new BoxLayout(actionBox, BoxLayout.Y_AXIS));
-		buttonPanel.setMaximumSize(new Dimension(1650, 600));
-		buttonPanel.setMinimumSize(new Dimension(1550, 600));
-		mainPanel.setMaximumSize(new Dimension(1850, 600));
-		mainPanel.setMinimumSize(new Dimension(1850, 600));
+		controlBox.setLayout(new BoxLayout(controlBox, BoxLayout.X_AXIS));
+		buttonPanel.setMaximumSize(new Dimension(1650, 750));
+		buttonPanel.setMinimumSize(new Dimension(1650, 750));
+		actionBox.setMaximumSize(new Dimension(1650, 750));
+		actionBox.setMinimumSize(new Dimension(1650, 750));
+		mainPanel.setMaximumSize(new Dimension(1650, 750));
+		mainPanel.setMinimumSize(new Dimension(1650, 750));
 		buttonPanel.setLayout(new GridLayout(board.width, board.height));
-		setMinimumSize(new Dimension(1550, 600));
-		setMaximumSize(new Dimension(2850, 1200));
+		setMinimumSize(new Dimension(1750, 750));
+		setMaximumSize(new Dimension(1750, 750));
+		
+		GridBagConstraints constraint = new GridBagConstraints();
+		constraint.fill = GridBagConstraints.HORIZONTAL;
+		constraint.weightx = 1;
+		// setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		for (int i = 0; i < board.width; i++)
 		{
 			for (int j = 0; j < board.height; j++)
 			{
 				buttons[i][j] = new JButton(board.getPrintBoard(human.getPosicao()).get(i).get(j));
 				buttons[i][j].setFont(new Font("Verdana", Font.BOLD, 12));;
-				
+				buttons[i][j].setToolTipText("[" + i + ", " + j + "]");
+				buttons[i][j].setFocusable(false);
 				buttonPanel.add(buttons[i][j]);
 				
 			}
 			
 		}
-		
+		newsPanel.add(Box.createHorizontalStrut(20));
 		newsPanel.add(newsLabel);
 		mainPanel.add(newsPanel);
-		mainPanel.add(Box.createHorizontalStrut(150));
+		mainPanel.add(Box.createHorizontalStrut(50));
 		actionLabel.setFont(new Font("Verdana", Font.BOLD, 16));
 		newsLabel.setFont(new Font("Verdana", Font.BOLD, 14));
 		
@@ -140,8 +156,16 @@ public class Gui extends JFrame implements ActionListener
 		checkGroup.add(shootHeuristic);
 		checkGroup.add(mineHeuristic);
 		
-		actionBox.add(buttonPanel);
+		actionBox.add(buttonPanel, BoxLayout.X_AXIS);
+		// actionBox.setBounds(150,20, 1850,900);
+		actionBox.add(Box.createVerticalStrut(20));
+		actionLabel.setAlignmentX(CENTER_ALIGNMENT);
 		actionBox.add(actionLabel);
+		actionBox.add(Box.createVerticalStrut(50));
+		controlBox.add(pauseButton);
+		controlBox.add(Box.createHorizontalStrut(20));
+		controlBox.add(resetButton);
+		actionBox.add(controlBox);
 		checkPanel.add(boardView);
 		checkPanel.add(baseView);
 		checkPanel.add(moveHeuristic);
@@ -151,16 +175,27 @@ public class Gui extends JFrame implements ActionListener
 		checkPanel.add(inventoryButton);
 		
 		mainPanel.setVisible(true);
-		mainPanel.add(actionBox);
+		mainPanel.add(actionBox, constraint);
 		mainPanel.add(Box.createHorizontalStrut(10));
 		mainPanel.add(checkPanel);
-		add(mainPanel);
-		pack();
+		
+		add(mainPanel, BorderLayout.CENTER);
+		inventoryButton.addActionListener(this);
+		pauseButton.addActionListener(this);
+		resetButton.addActionListener(this);
+		pauseButton.setFocusable(false);
+		resetButton.setFocusable(false);
+		boardView.setFocusable(false);
+		baseView.setFocusable(false);
+		shootHeuristic.setFocusable(false);
+		moveHeuristic.setFocusable(false);
+		mineHeuristic.setFocusable(false);
+		inventoryButton.setFocusable(false);
+		// pack();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 		setTitle("Wumbus");
 		
-		newsLabel.setText("Que os jogos comecem!");
 	}
 	
 	public void update()
@@ -173,27 +208,31 @@ public class Gui extends JFrame implements ActionListener
 				{
 					buttons[i][j].setForeground(Color.WHITE);
 					buttons[i][j].setBackground(Color.DARK_GRAY);
-					if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("O"))
+					if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("O"))
 					{
 						buttons[i][j].setBackground(Color.YELLOW);
 						buttons[i][j].setForeground(Color.BLACK);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("T"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("T"))
 					{
 						buttons[i][j].setBackground(Color.BLUE);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("B"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("B"))
 					{
 						buttons[i][j].setForeground(Color.BLACK);
 						buttons[i][j].setBackground(Color.PINK);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("S"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("S"))
 					{
 						buttons[i][j].setBackground(Color.CYAN);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("E"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("E"))
 					{
 						buttons[i][j].setBackground(Color.BLACK);
+					}
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("F"))
+					{
+						buttons[i][j].setForeground(Color.RED);
 					}
 					buttons[i][j].setText(board.getPrintBoard(human.getPosicao()).get(i).get(j));
 				}
@@ -211,29 +250,33 @@ public class Gui extends JFrame implements ActionListener
 				{
 					buttons[i][j].setForeground(Color.WHITE);
 					buttons[i][j].setBackground(Color.DARK_GRAY);
-					if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("O"))
+					if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("O"))
 					{
 						buttons[i][j].setForeground(Color.BLACK);
 						buttons[i][j].setBackground(Color.YELLOW);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("T"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("T"))
 					{
 						buttons[i][j].setBackground(Color.BLUE);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("B"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("B"))
 					{
 						buttons[i][j].setForeground(Color.BLACK);
 						buttons[i][j].setBackground(Color.PINK);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("S"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("S"))
 					{
 						buttons[i][j].setBackground(Color.CYAN);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("E"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("E"))
 					{
 						buttons[i][j].setBackground(Color.BLACK);
 					}
-					buttons[i][j].setText("");
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("F"))
+					{
+						buttons[i][j].setForeground(Color.RED);
+					}
+					buttons[i][j].setText("  ");
 				}
 			}
 			for (int i = 0; i < human.getBase().size(); i++)
@@ -251,25 +294,29 @@ public class Gui extends JFrame implements ActionListener
 				{
 					buttons[i][j].setBackground(Color.DARK_GRAY);
 					buttons[i][j].setForeground(Color.WHITE);
-					if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("O"))
+					if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("O"))
 					{
 						buttons[i][j].setBackground(Color.YELLOW);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("T"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("T"))
 					{
 						buttons[i][j].setBackground(Color.BLUE);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("B"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("B"))
 					{
 						buttons[i][j].setBackground(Color.PINK);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("S"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("S"))
 					{
 						buttons[i][j].setBackground(Color.CYAN);
 					}
-					else if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("E"))
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("E"))
 					{
 						buttons[i][j].setBackground(Color.BLACK);
+					}
+					else if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("F"))
+					{
+						buttons[i][j].setForeground(Color.RED);
 					}
 					buttons[i][j].setText(Integer.toString(ai.getMoveHeuristic(new Point(i, j))));
 					
@@ -305,7 +352,7 @@ public class Gui extends JFrame implements ActionListener
 				{
 					buttons[i][j].setBackground(Color.DARK_GRAY);
 					buttons[i][j].setForeground(Color.WHITE);
-					if(board.getPrintBoard(new Point(i,j)).get(i).get(j).contains("R"))
+					if(board.getPrintBoard(new Point(i, j)).get(i).get(j).contains("R"))
 					{
 						buttons[i][j].setBackground(Color.ORANGE);
 					}
@@ -319,54 +366,57 @@ public class Gui extends JFrame implements ActionListener
 			buttons[monster.getPosicao().x][monster.getPosicao().y].setBackground(Color.RED);
 		}
 		actionLabel.setText(human.getAction().action.toString() + " para " + human.getAction().direction.toString());
-		if(!human.alive)
+		if(!human.getPosicao().equals(lastPosition) || human.getAction().action == Actions.ATIRAR)
 		{
-			news.addNews("O humano foi morto!\n");
-		}
-		else if(human.getAction().action == Actions.ATIRAR && !monster.alive)
-		{
-			news.addNews("O humano matou o Monstro com uma flecha no coração");
-		}
-		else if(human.free)
-		{
-			news.addNews("O humano escapou da caverna!\n");
-		}
-		else if(board.getLocal(human.getPosicao()).contains("O"))
-		{
-			news.addNews("O humano encontrou o Ouro! Ele está rico!\n");
-		}
-		else if(board.getLocal(human.getPosicao()).contains("T"))
-		{
-			news.addNews("O humano subiu numa enorme Torre!\n");
-		}
-		else if(human.getAction().action == Actions.ATIRAR)
-		{
-			news.addNews("O humano atirou para a " + human.getAction().direction.toString() + "\n");
-		}
-		else if(board.getLocal(human.getPosicao()).contains("F"))
-		{
-			news.addNews("O humano achou fogo! Está evoluindo..\n");
-		}
-		else if(board.getLocal(human.getPosicao()).contains("B"))
-		{
-			news.addNews("O humano achou um baú! O que será que tem dentro dele?\n");
-		}
-		else if(board.getLocal(human.getPosicao()).contains("D"))
-		{
-			news.addNews("Cuidado! A sala pode desmoronar a qualquer instante!\n");
-		}
-		else if(board.getLocal(human.getPosicao()).contains("A"))
-		{
-			news.addNews("O humano pegou carona num atalho!\n");
+			if(!human.alive)
+			{
+				news.addNews("O humano foi morto!\n");
+			}
+			else if(human.getAction().action == Actions.ATIRAR && !monster.alive)
+			{
+				news.addNews("O humano matou o Monstro com uma flecha no peito");
+			}
+			else if(human.free)
+			{
+				news.addNews("O humano escapou da caverna!\n");
+			}
+			else if(board.getLocal(human.getPosicao()).contains("O"))
+			{
+				news.addNews("O humano encontrou o Ouro! Ele esta rico!\n");
+			}
+			else if(board.getLocal(human.getPosicao()).contains("T"))
+			{
+				news.addNews("O humano subiu numa enorme Torre!\n");
+			}
+			else if(human.getAction().action == Actions.ATIRAR)
+			{
+				news.addNews("O humano atirou para a " + human.getAction().direction.toString() + "\n");
+			}
+			else if(board.getLocal(human.getPosicao()).contains("F"))
+			{
+				news.addNews("O humano achou fogo! Esta evoluindo..\n");
+			}
+			else if(board.getLocal(human.getPosicao()).contains("B"))
+			{
+				news.addNews("O humano achou um bau! O que sera que tem dentro dele?\n");
+			}
+			else if(board.getLocal(human.getPosicao()).contains("D"))
+			{
+				news.addNews("Cuidado! A sala pode desmoronar a qualquer instante!\n");
+			}
+			else if(board.getLocal(human.getPosicao()).contains("A"))
+			{
+				news.addNews("O humano pegou carona num atalho!\n");
+			}
 		}
 		newsLabel.setText("\n" + news.feed());
+		lastPosition = new Point(human.getPosicao());
 		inventoryGui();
-		// pack();
+		pack();
 	}
 	
 	private void inventoryGui()
 	{
-		inventoryButton.addActionListener(this);
 		if(inventoryGui.isVisible())
 		{
 			inventoryGui.update();
@@ -380,5 +430,25 @@ public class Gui extends JFrame implements ActionListener
 		{
 			inventoryGui.setVisible(true);;
 		}
+		else if(e.getSource().equals(pauseButton))
+		{
+			pause = !pause;
+			if(pause)
+			{
+				news.addNews("Jogo pausado!\n");
+				pauseButton.setText("Continue");
+			}
+			else
+			{
+				pauseButton.setText("Pause");
+				news.addNews("Que o jogo continue!\n");
+			}
+			
+		}
+		else if(e.getSource().equals(resetButton))
+		{
+			reset = true;
+		}
 	}
+	
 }
